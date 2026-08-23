@@ -144,3 +144,9 @@ BROKEN    <what you found broken but did not fix>
 ```
 
 Reporting a real blocker is a good outcome. Reporting "complete" for code you never ran is the failure this document exists to prevent.
+
+---
+
+## 9. Image Updates
+
+> **Do not update images implicitly.** Only update or replace images when explicitly told "update image". Otherwise, leave image files and image paths exactly as they are.
