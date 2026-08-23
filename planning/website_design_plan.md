@@ -37,7 +37,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **Primary Navbar (Top Row):** Brand Logo (**Strict Rule:** Do not change or invert the logo color under any circumstances), Global Search Bar, Track Order link, Sign In / Account link, Wishlist icon, Cart icon (with item count/total badge).
 - **Secondary Navigation (Bottom Row):** Combo, Offer Zone, New Arrivals, Featured Products, and dynamic Active Categories (with hover/dropdown menus).
 
-### 3.2 Footer
+### 3.2 Footer ✅ [COMPLETED]
 - **Links:** Privacy Policy, Terms & Conditions, Return Policy.
 - **Info Sections:** "Why Choose Us", Delivery Information.
 - **Socials & Forms:** Facebook/Instagram links, Newsletter/Offer Subscription form.
@@ -183,7 +183,7 @@ The User Dashboard will feature a unified layout: a **Left Sidebar** for navigat
 
 ## 8. Static & System Pages
 
-### 8.1 Static Info Pages
+### 8.1 Static Info Pages ✅ [COMPLETED]
 - **Delivery Information (`/delivery`):** Text content explaining rates and timelines.
 - **Privacy Policy (`/privacy`):** Plain text layout.
 - **Terms & Conditions (`/terms`):** Plain text layout.
