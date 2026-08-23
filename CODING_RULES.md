@@ -6,11 +6,12 @@ Binding rules for every change in `e-commerce-website`, `e-commerce-dashboard` a
 
 ---
 
-## 0. The three non-negotiables
+## 0. The four non-negotiables
 
 1. **Reusable components always.** Never hand-roll a table, modal, form field, search box, pagination, tag or spinner. The inventories are in §2.4 (website) and §3.5 (dashboard). **For Modal, table and other components, your first priority MUST be to search the inventory and use an existing reusable component.** For forms, you MUST use the provided reusable forms (e.g., ReuseForm). If a shared component's default look fights the design, extend the component with a prop — don't fork it.
 2. **Every network call goes through a wrapper.** Website reads → Next `fetch` in a server component or a `"use server"` service; website authenticated calls → `fetchWithAuth`; website client calls → `clientFetch`; dashboard → RTK Query `baseApi.injectEndpoints`. **Raw `fetch(...)`/`axios` in a component is a bug.**
 3. **Every mutation goes through `tryCatchWrapper`.** Never `.unwrap()`, never a bare `try/catch` around a mutation in the UI. The wrapper owns loading/success/error toasts and error normalisation.
+4. **Every static text is localized.** A user-visible string literal written into a website component is a bug — it comes from `src/i18n/dictionaries/{bn,en}.json`, and both files change in the same commit. Details in §2.6.
 
 Plus one gate: **a part is not done until §6 passes green.** No `any`, no unused symbols, no failing typecheck.
 
@@ -90,7 +91,7 @@ if (res?.success) {
 - Each route provides `loading.tsx` (skeletons, not a bare spinner) and inherits `error.tsx`; lists render an `EmptyState` when empty. Spec §3.26 lists every state that must exist — all of them are required, not optional.
 - `generateMetadata` on every public route (title, description, OG, canonical). Product and category pages emit JSON-LD.
 - Images through `next/image` with sizes; remote hosts must be registered in `next.config.ts`.
-- Bengali-first: `lang="bn"`, Hind Siliguri, UI copy in Bengali, currency `৳`, Bengali-friendly line-height. English only where the spec shows English.
+- Bengali-first: `bn` is the default locale, Hind Siliguri, currency `৳`, Bengali-friendly line-height. `<html lang>` is driven by the route's locale, never hardcoded. All UI copy comes from the dictionaries — see §2.6.
 
 ### 2.4 Website component inventory — check here before creating anything
 
@@ -104,6 +105,24 @@ Missing storefront primitives the spec requires (`EmptyState`, `SkeletonCard`, `
 ### 2.5 Styling
 
 Use the `:root` shadcn tokens — `bg-primary` (orange `#F97316`), `text-foreground`, `text-muted-foreground`, `bg-card`, `border-border`, `bg-badge-new|badge-sale|badge-combo|badge-bestsell`, `text-success|warning|destructive`. The legacy `@theme default` block (`--color-secondary-color` emerald etc.) is template leftover — do not extend it. Raw hex in JSX is a bug.
+
+### 2.6 Localization — every static text comes from the dictionary
+
+The storefront ships in Bengali (`bn`, default) and English (`en`). Every route lives under `src/app/[locale]/`, so the locale is always in the URL — that is what makes both languages indexable and what `hreflang` points at. The locale redirect lives in `src/proxy.ts` (Next 16 renamed `middleware` → `proxy`).
+
+**A user-visible string literal in a component is a bug.** That covers labels, buttons, placeholders, headings, empty states, validation and toast copy, `aria-label`, image `alt`, page titles and meta descriptions. Every one of them comes from `src/i18n/dictionaries/bn.json` + `en.json`, and **both files are updated in the same commit**.
+
+| Context             | How to read it                                                       |
+| ------------------- | -------------------------------------------------------------------- |
+| Server Component    | `const t = await getDictionary()` — nothing ships to the browser     |
+| Client Component    | `const t = useT()` from `@/components/i18n/DictionaryProvider`       |
+| `generateMetadata`  | `await getDictionaryFor(locale)` — `params` already carries it       |
+| Values in a string  | `format(t.shop.showingResults, { first, last, total })`              |
+
+- **Internal links use `LocaleLink`, never bare `next/link`.** A bare `/shop` drops the visitor through the proxy redirect and can bounce an English visitor back into Bengali.
+- **Numbers, prices and dates go through `Intl`** with `INTL_LOCALES[locale]`. Bengali renders its own digit glyphs (১২৩), so hand-concatenating `৳` + a JS number is wrong.
+- **`bn.json` defines the key set.** A key missing from `en.json` fails `npx tsc --noEmit` by design — fix the translation, never silence it with a cast.
+- **Catalog content is NOT translated.** Product and category names/descriptions stay Bengali; only UI chrome is bilingual. Do not add `titleEn`/`titleBn` (or `LocalizedText`) fields to backend models — that scope was considered and rejected because it doubles catalog data entry for staff, forever.
 
 ---
 
@@ -341,6 +360,7 @@ All three must exit clean — zero type errors, zero lint errors, zero new warni
 - [ ] Dashboard: endpoints in `<feature>Api.ts` with tags; page + modals built from the reusable inventory; route + sidebar entry with permission
 - [ ] Website: server fetch / service action with explicit cache tags; `revalidateTag` after mutations; UI built from the reusable inventory
 - [ ] All `DUMMY_*` data for this feature deleted
+- [ ] Every new user-visible string added to **both** `bn.json` and `en.json`; no string literal left in JSX; screen checked at `/bn/…` and `/en/…`
 - [ ] Loading, empty, error, validation-error and success states implemented on every new screen
 - [ ] Design matches the phase spec / supplied screenshot (colours, spacing, which elements appear); checked at mobile, tablet and desktop widths
 - [ ] §6 gate green in all three projects
@@ -365,5 +385,9 @@ All three must exit clean — zero type errors, zero lint errors, zero new warni
 | Deleting a document                               | `isDeleted` / archived status                                                |
 | Hiding a button as "authorisation"                | `requirePermission()` on the route, hiding as UX only                        |
 | `any` to silence a type error                     | model the real response type                                                 |
+| `<button>Add To Cart</button>`                    | `<button>{t.common.addToCart}</button>` from the dictionary                  |
+| `import Link from "next/link"` for an internal route | `LocaleLink` — keeps the visitor's language                               |
+| Adding a key to `bn.json` only, "translate later" | both dictionaries in the same commit; the build enforces it                  |
+| `৳${price}` / `date.toLocaleString()` with no locale | `Intl` with `INTL_LOCALES[locale]`                                        |
 | Leaving `DUMMY_ORDERS` beside a working endpoint  | delete it in the same commit                                                 |
 | Editing `baseApi.ts` to add an endpoint           | `baseApi.injectEndpoints` in the feature file                                |

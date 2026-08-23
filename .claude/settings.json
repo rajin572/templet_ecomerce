@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize; Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Select-Object ProcessId, @{n='Cmd';e={$_.CommandLine.Substring\\(0,[Math]::Min\\(120,$_.CommandLine.Length\\)\\)}} | Format-List)",
+      "PowerShell(foreach \\($id in 7448, 4384, 8356, 5164\\) { try { Stop-Process -Id $id -Force -ErrorAction Stop; \"stopped $id\" } catch { \"already gone: $id\" } })",
+      "Bash(grep -n 'name:\\\\|label:\\\\|title:\\\\|>[^<>{}]\\\\{2,\\\\}<' src/components/shared/CategoryBar.tsx)",
+      "Bash(python -)",
+      "Bash(npx next *)",
+      "Bash(echo \"=== typegen exit: $? ===\")",
+      "Bash(npx tsc *)",
+      "Bash(echo \"exit: $?\")",
+      "Read(//tmp/**)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} location=%{redirect_url}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} location=%{redirect_url}\\\\n\" http://localhost:3000/shop)",
+      "Bash(curl -s -o /dev/null -H \"Accept-Language: en-US,en;q=0.9\" -w \"status=%{http_code} location=%{redirect_url}\\\\n\" http://localhost:3000/shop)",
+      "Bash(curl -s -o /dev/null -H \"Cookie: NEXT_LOCALE=en\" -w \"status=%{http_code} location=%{redirect_url}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code}\\\\n\" http://localhost:3000/bn/shop)",
+      "Bash(curl -s http://localhost:3000/bn)",
+      "Bash(curl -s http://localhost:3000/en)",
+      "Bash(echo \"tsc exit: $?\")",
+      "Bash(echo \"restored, tsc exit: $?\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next/dist/bin/next\")",
+      "Bash(echo \"build exit: $?\")",
+      "Bash(xargs echo \"routes:\")",
+      "Bash(break)",
+      "Bash(curl -s -o /dev/null -w \"dev server: / -> %{http_code} %{redirect_url}\\\\n\" http://localhost:3000/)",
+      "Bash(xargs echo \"changed files:\")",
+      "PowerShell(foreach \\($p in 3000, 3001\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { foreach \\($conn in $c\\) { $proc = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue; \"port $p -> PID $\\($conn.OwningProcess\\) \\($\\($proc.ProcessName\\)\\)\" } } else { \"port $p -> free\" } })",
+      "PowerShell(Start-Sleep -Seconds 1; foreach \\($p in 3000, 3001\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"port $p -> STILL IN USE by PID $\\($c.OwningProcess\\)\" } else { \"port $p -> free\" } }; $left = Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'ecommerce-website' }; if \\($left\\) { \"remaining project node processes: $\\($left.Count\\)\" } else { \"no leftover project node processes\" })"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

@@ -19,6 +19,15 @@ The storefront will be built using a **Next.js Server-Side Rendering (SSR)** app
 - **Server Components:** `page.js` or `page.tsx` files must **never** use `"use client"`. All pages must be rendered as Server Components.
 - **Form Reusability:** When building forms, you must use the provided reusable form components (e.g., `ReuseForm`). Do not build forms from scratch.
 - **Component Priority:** For Modals, Tables, and other UI elements, always search the reusable component inventory first. Existing components must be used as the first priority over creating new ones.
+- **Localization:** Every static text must be localized. No user-visible string is written into a component — labels, buttons, placeholders, headings, empty states, validation and toast copy, `aria-label`, image `alt`, page titles and meta descriptions all come from `src/i18n/dictionaries/bn.json` and `en.json`, and **both files are updated together**. Server Components read them with `await getDictionary()`, Client Components with `useT()`. See CODING_RULES.md §2.6 for the full rule.
+
+### 2.4 Language & Routing
+
+The site ships in Bengali (`bn`, the default) and English (`en`). Every page in this plan lives under `/[locale]/…` — the paths written below (`/products`, `/cart`, `/account/orders`) are **relative to the locale segment**, so the real URLs are `/bn/products` and `/en/products`.
+
+- Internal navigation uses `LocaleLink`, never bare `next/link`.
+- Only the UI chrome is bilingual. **Product and category content stays Bengali** — the catalog is not translated, so staff never enter a product twice.
+- Prices, quantities and dates render through `Intl` for the active locale (Bengali uses its own digits: ১২৩).
 
 ---
 

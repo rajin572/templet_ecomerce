@@ -90,6 +90,15 @@ Then, for the part you built:
 - [ ] Happy path driven end to end against the real API
 - [ ] One failure path driven (wrong password, missing permission, expired token)
 - [ ] Every `DUMMY_*` array this part replaces is deleted
+- [ ] **Both locales rendered and pasted** — a page that only works in Bengali is not done:
+
+```bash
+# Every new string must appear translated in BOTH trees, in the HTML — not swapped by JS.
+curl -s localhost:3000/bn/shop | grep -o "সব পণ্য"
+curl -s localhost:3000/en/shop | grep -o "All Products"
+```
+
+- [ ] No user-visible string literal left in the files you touched — every one reads from `src/i18n/dictionaries/`, and `bn.json` + `en.json` both changed
 - [ ] `grep -rn "TODO\|FIXME\|console.log" src/` on files you touched — clean
 - [ ] BUILD_PLAN §J tracker updated only now
 
@@ -131,6 +140,8 @@ PASS  staff.manage_roles missing-> GET /roles  403
 | Copying a template and renaming        | Left Yatos/eKayzone types, endpoints and dummy data throughout                                                                                      |
 | Marking a checklist item done on write | Much of Part 0/1 was written competently, but no "Done when" list was ever executed — the server could not start, so none of them _could_ have been |
 | Silently narrowing scope               | If you skip something, say exactly what and why                                                                                                     |
+| Hardcoding UI text "just for now"      | Every static text is localized (CODING_RULES §2.6). A literal in JSX renders identically in `/bn` and `/en` — the bug is invisible until a user switches language |
+| Checking only `/bn` and calling it done | The English tree is a separate render; `curl` both or you have verified half the feature                                                            |
 
 ---
 
