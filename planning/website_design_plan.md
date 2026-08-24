@@ -59,7 +59,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **Hero / Banner Section:** Slider or static promotional image (using Unsplash placeholders) with a Call-To-Action (CTA). ✅ [COMPLETED]
 - **Featured Categories:** Grid of max 4 categories. ✅ [COMPLETED]
 - **Best Selling Products:** Horizontal scrolling list or grid. ✅ [COMPLETED]
-- **New Arrivals:** Curated product grid.
+- **New Arrivals:** Curated product grid. ✅ [COMPLETED]
 - **Promotional Banner:** Secondary banner for targeted campaigns.
 - **Exclusive Combo Deals:** Dedicated section for bundled offers.
 - **Featured Products:** Curated product grid.
@@ -70,7 +70,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 #### 4.2.1 All Products / Search Results (`/products`)
 
 - **Header:** Search query title (e.g., "Search results for: holud").
-- **Grid Layout:** Displays product cards (Image, Name, Price, Discount, Stock status).
+- **Grid Layout and List Layout:** Displays product cards (Image, Name, Price, Discount, Stock status).
 - **Filters/Sorting:** Basic sorting (price, newest).
 - **Architecture Note:** SSR is crucial here for SEO indexing of product lists.
 
