@@ -57,11 +57,11 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 ### 4.1 Homepage (`/`)
 
 - **Hero / Banner Section:** Slider or static promotional image (using Unsplash placeholders) with a Call-To-Action (CTA). ✅ [COMPLETED]
-- **Featured Categories:** Grid of max 4 categories.
-- **Best Selling Products:** Horizontal scrolling list or grid.
+- **Featured Categories:** Grid of max 4 categories. ✅ [COMPLETED]
+- **Best Selling Products:** Horizontal scrolling list or grid. ✅ [COMPLETED]
 - **New Arrivals:** Curated product grid.
-- **Exclusive Combo Deals:** Dedicated section for bundled offers.
 - **Promotional Banner:** Secondary banner for targeted campaigns.
+- **Exclusive Combo Deals:** Dedicated section for bundled offers.
 - **Featured Products:** Curated product grid.
 - **Customer Reviews:** Carousel of approved verified-purchase reviews.
 
