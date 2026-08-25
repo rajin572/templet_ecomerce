@@ -28,7 +28,17 @@
       "Bash(curl -s -o /dev/null -w \"dev server: / -> %{http_code} %{redirect_url}\\\\n\" http://localhost:3000/)",
       "Bash(xargs echo \"changed files:\")",
       "PowerShell(foreach \\($p in 3000, 3001\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { foreach \\($conn in $c\\) { $proc = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue; \"port $p -> PID $\\($conn.OwningProcess\\) \\($\\($proc.ProcessName\\)\\)\" } } else { \"port $p -> free\" } })",
-      "PowerShell(Start-Sleep -Seconds 1; foreach \\($p in 3000, 3001\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"port $p -> STILL IN USE by PID $\\($c.OwningProcess\\)\" } else { \"port $p -> free\" } }; $left = Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'ecommerce-website' }; if \\($left\\) { \"remaining project node processes: $\\($left.Count\\)\" } else { \"no leftover project node processes\" })"
+      "PowerShell(Start-Sleep -Seconds 1; foreach \\($p in 3000, 3001\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"port $p -> STILL IN USE by PID $\\($c.OwningProcess\\)\" } else { \"port $p -> free\" } }; $left = Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'ecommerce-website' }; if \\($left\\) { \"remaining project node processes: $\\($left.Count\\)\" } else { \"no leftover project node processes\" })",
+      "Bash(node -e \"const d=require\\('./src/i18n/dictionaries/bn.json'\\); console.log\\(JSON.stringify\\(Object.keys\\(d\\)\\)\\); for\\(const k of Object.keys\\(d\\)\\){console.log\\(k, ':', JSON.stringify\\(Object.keys\\(d[k]\\)\\).slice\\(0,600\\)\\);}\")",
+      "Bash(node -e ' *)",
+      "Bash(python -c ' *)",
+      "Bash(curl -s -i http://localhost:3123/bn/collections/nope)",
+      "Bash(curl -s http://localhost:3123/bn/collections/nope)",
+      "Bash(grep -oE \"<h1[^>]*>[^<]{0,80}\")",
+      "Bash(curl -s http://localhost:3123/bn/category/nope)",
+      "Bash(curl -s http://localhost:3123/bn/product/nope)",
+      "Bash(curl -s \"http://localhost:3123/bn/collections/zzz2\")",
+      "Bash(npx kill-port *)"
     ],
     "additionalDirectories": [
       "\\tmp"

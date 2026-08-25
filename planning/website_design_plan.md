@@ -29,7 +29,7 @@ The storefront will be built using a **Next.js Server-Side Rendering (SSR)** app
 
 ### 2.4 Language & Routing
 
-The site ships in Bengali (`bn`, the default) and English (`en`). Every page in this plan lives under `/[locale]/…` — the paths written below (`/products`, `/cart`, `/account/orders`) are **relative to the locale segment**, so the real URLs are `/bn/products` and `/en/products`.
+The site ships in Bengali (`bn`, the default) and English (`en`). Every page in this plan lives under `/[locale]/…` — the paths written below (`/collections/combos`, `/cart`, `/account/orders`) are **relative to the locale segment**, so the real URLs are `/bn/collections/combos` and `/en/collections/combos`.
 
 - Internal navigation uses `LocaleLink`, never bare `next/link`.
 - Only the UI chrome is bilingual. **Product and category content stays Bengali** — the catalog is not translated, so staff never enter a product twice.
@@ -42,7 +42,8 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 ### 3.1 Two-Level Navbar ✅ [COMPLETED]
 
 - **Primary Navbar (Top Row):** Brand Logo (**Strict Rule:** Do not change or invert the logo color under any circumstances), Global Search Bar, Track Order link, Sign In / Account link, Wishlist icon, Cart icon (with item count/total badge).
-- **Secondary Navigation (Bottom Row):** Combo, Offer Zone, New Arrivals, Featured Products, and dynamic Active Categories (with hover/dropdown menus).
+- **Secondary Navigation (Bottom Row):** Combo (`/collections/combos`), Offer Zone (`/collections/offers`), then the dynamic Active Categories. A category with children opens a hover dropdown listing each child (`/category/:categorySlug/:subCategorySlug`) above a **"View all <category>"** link (`/category/:categorySlug`); a category with `hasSub: false` links straight to `/category/:categorySlug`. The mobile drawer mirrors this as an accordion.
+- **Single source of categories:** the navbar, the mobile drawer, the homepage category marquee and the category routes all read the **same** category tree from `src/service/CatalogService/`, so a slug can never drift between the link and the page it opens.
 
 ### 3.2 Footer ✅ [COMPLETED]
 
@@ -65,37 +66,75 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **Featured Products:** Curated product grid. ✅ [COMPLETED]
 - **Customer Reviews:** Carousel of approved verified-purchase reviews.
 
-### 4.2 Product Discovery Pages
+### 4.2 Product Discovery Routes
 
-#### 4.2.1 All Products / Search Results (`/products`)
+There are **exactly three ways to reach products**, and no others. **`/shop` does not exist** — it was removed along with `/products`, and every link that pointed at it now points at a collection, a category, or the homepage.
 
-- **Header:** Search query title (e.g., "Search results for: holud").
-- **Grid Layout and List Layout:** Displays product cards (Image, Name, Price, Discount, Stock status).
-- **Filters/Sorting:** Basic sorting (price, newest).
-- **Architecture Note:** SSR is crucial here for SEO indexing of product lists.
+| Route                                     | Lists                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `/collections/:collectionSlug`            | A curated set the admin flags — combos, best sellers, new arrivals, featured products, offer zone                                     |
+| `/category/:categorySlug`                 | Everything in one top-level category. Where **"View all <category>"** lands, and where a category with `hasSub: false` links directly |
+| `/category/:categorySlug/:subCategorySlug` | One child category                                                                                                                    |
+| `/product/:productId`                     | A single product                                                                                                                      |
 
-#### 4.2.2 Category Page (`/category/:slug`)
+All four are Server Components. The catalog read is a cached server `fetch` (`revalidate` + tag) so the listing HTML is indexable; only the toolbar, filters, gallery and buy panel are Client Component islands.
 
-- **Header:** Category Title, Category Image/Banner.
-- **Grid Layout:** Products belonging to the specific category.
-- **Sub-category Links:** Quick links to child categories if applicable.
+#### 4.2.1 Collection Page (`/collections/:collectionSlug`) ✅ [COMPLETED]
 
-#### 4.2.3 Promotional Listing Pages (`/combos`, `/offers`, `/new-arrivals`, `/featured`)
+The slug set is **fixed** — five collections, each with its own title, description and accent. These are the static links in the secondary navbar and the "View All" target of every homepage product row.
 
-- _These pages correspond to the static links in the secondary navbar._
-- **Header:** Title of the promotion (e.g., "Exclusive Combos", "New Arrivals").
-- **Grid Layout:** Display products assigned to these specific promotional flags by the admin.
+| Slug                 | Collection             | Linked from                       |
+| -------------------- | ---------------------- | --------------------------------- |
+| `combos`             | Exclusive Combo Deals  | Navbar "Combo", homepage combo row |
+| `best-sales`         | Best Selling Products  | Homepage best-selling row          |
+| `new-arrivals`       | New Arrivals           | Homepage new-arrivals row          |
+| `featured-products`  | Featured Products      | Homepage featured row              |
+| `offers`             | Offer Zone             | Navbar "Offer Zone", hero CTA      |
 
-### 4.4 Product Detail Page (`/product/:slug`)
+- **Breadcrumb:** Home › Collection title.
+- **Header:** Collection title, one-line description, live product count.
+- **Body:** the shared catalog browser (§4.3).
+- **Routing:** the five slugs are prerendered with `generateStaticParams`; any other slug returns `notFound()`.
 
-- **Media Gallery (Left):** Main image with thumbnail carousel.
-- **Product Info (Right):** Name, Original Price, Sale Price, SKU, Stock Status badge.
-- **Variants Selector:** Buttons/dropdowns for sizes/weights that update price/stock dynamically.
-- **Action Buttons:** "Add to Cart", "Add to Wishlist".
-- **Details Tabs:** Description, Ingredients, Usage information.
-- **Social Proof:** Star rating summary, Verified purchase reviews list.
-- **Cross-Selling:** "Related Products" and "Frequently Bought Together".
-- **Architecture Note:** Rendered via SSR to serve Open Graph tags immediately to social media crawlers.
+#### 4.2.2 Category Page (`/category/:categorySlug`) ✅ [COMPLETED]
+
+- **Breadcrumb:** Home › Category.
+- **Header:** Category title, description, live product count.
+- **Sub-category strip:** `CategoryPill` row linking to each child, plus an "All" pill that stays active here. Hidden when the category has `hasSub: false` — those categories link straight to this page from the navbar.
+- **Body:** every product in the category, **including all of its sub-categories** — the shared catalog browser (§4.3).
+- **Routing:** unknown slug → `notFound()`. Category slugs are prerendered.
+
+#### 4.2.3 Sub-category Page (`/category/:categorySlug/:subCategorySlug`) ✅ [COMPLETED]
+
+- **Breadcrumb:** Home › Category › Sub-category.
+- **Header:** Sub-category title, live product count.
+- **Sub-category strip:** the same sibling pills, with this one active and "All" linking back up to the parent.
+- **Body:** only this sub-category's products — the shared catalog browser (§4.3).
+- **Routing:** a sub-category slug that does not belong to the parent category → `notFound()`.
+
+### 4.3 Shared Catalog Browser ✅ [COMPLETED]
+
+One component (`src/components/catalog/CatalogBrowser.tsx`) drives the body of every collection, category and sub-category page, so the three route families look and behave identically.
+
+- **Toolbar:** "Showing x–y of z", sort select (default / popularity / latest / price ↑ / price ↓), grid ⇄ list toggle (desktop only).
+- **Filter sidebar** (collapsed behind a "Filters" button below `lg`): max-price slider and stock availability. Category navigation is **links, not checkboxes** — moving between categories is a route change, not a filter.
+- **Grid view:** `ProductCard` at 2 / 3 / 4 columns. **List view:** wide row with image, name, price, blurb, add-to-cart.
+- **Empty state:** `EmptyState` with a "clear filters" action — never a blank grid.
+- **Pagination:** `ReusablePagination`, 12 per page, resets to page 1 whenever a filter or sort changes.
+- **Loading:** each route ships `loading.tsx` built from `SkeletonCard`, not a spinner.
+
+### 4.4 Product Detail Page (`/product/:productId`) ✅ [COMPLETED]
+
+The URL is keyed on the **product id**, not a slug — `/product/:productId`.
+
+- **Breadcrumb:** Home › Category › Sub-category › Product name, built from the product's own category path.
+- **Media Gallery (Left):** Main image with thumbnail carousel — Client island.
+- **Product Info (Right):** Name, star summary, Original Price, Sale Price, savings badge, short description.
+- **Buy panel:** variant (weight) selector, quantity stepper, "Add to Cart", "Buy Now", wishlist, WhatsApp order — one Client island; the variant choice feeds the WhatsApp message.
+- **Meta block:** SKU, category link, stock status, share row.
+- **Details Tabs:** Description / Reviews (rating breakdown + verified-purchase list).
+- **Cross-Selling:** "Related Products" — same category, current product excluded.
+- **Architecture Note:** Server-rendered with `generateMetadata` (title, description, OG image) and a `Product` JSON-LD block, so social crawlers and search engines get everything on first byte. Unknown id → `notFound()`.
 
 ---
 
