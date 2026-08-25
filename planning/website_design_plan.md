@@ -64,18 +64,20 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **Promotional Banner:** Secondary banner for targeted campaigns. ✅ [COMPLETED]
 - **Exclusive Combo Deals:** Dedicated section for bundled offers. ✅ [COMPLETED]
 - **Featured Products:** Curated product grid. ✅ [COMPLETED]
-- **Customer Reviews:** Carousel of approved verified-purchase reviews.
+- **Customer Reviews:** Carousel of approved verified-purchase reviews. ✅ [COMPLETED]
+- **FAQ Session:** use Reuseable Accourdion to make it. ✅ [COMPLETED]
+- **Contact Page:** a modern contact form. ✅ [COMPLETED]
 
 ### 4.2 Product Discovery Routes
 
 There are **exactly three ways to reach products**, and no others. **`/shop` does not exist** — it was removed along with `/products`, and every link that pointed at it now points at a collection, a category, or the homepage.
 
-| Route                                     | Lists                                                                                                                                 |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `/collections/:collectionSlug`            | A curated set the admin flags — combos, best sellers, new arrivals, featured products, offer zone                                     |
-| `/category/:categorySlug`                 | Everything in one top-level category. Where **"View all <category>"** lands, and where a category with `hasSub: false` links directly |
+| Route                                      | Lists                                                                                                                                 |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `/collections/:collectionSlug`             | A curated set the admin flags — combos, best sellers, new arrivals, featured products, offer zone                                     |
+| `/category/:categorySlug`                  | Everything in one top-level category. Where **"View all <category>"** lands, and where a category with `hasSub: false` links directly |
 | `/category/:categorySlug/:subCategorySlug` | One child category                                                                                                                    |
-| `/product/:productId`                     | A single product                                                                                                                      |
+| `/product/:productId`                      | A single product                                                                                                                      |
 
 All four are Server Components. The catalog read is a cached server `fetch` (`revalidate` + tag) so the listing HTML is indexable; only the toolbar, filters, gallery and buy panel are Client Component islands.
 
@@ -83,13 +85,13 @@ All four are Server Components. The catalog read is a cached server `fetch` (`re
 
 The slug set is **fixed** — five collections, each with its own title, description and accent. These are the static links in the secondary navbar and the "View All" target of every homepage product row.
 
-| Slug                 | Collection             | Linked from                       |
-| -------------------- | ---------------------- | --------------------------------- |
-| `combos`             | Exclusive Combo Deals  | Navbar "Combo", homepage combo row |
-| `best-sales`         | Best Selling Products  | Homepage best-selling row          |
-| `new-arrivals`       | New Arrivals           | Homepage new-arrivals row          |
-| `featured-products`  | Featured Products      | Homepage featured row              |
-| `offers`             | Offer Zone             | Navbar "Offer Zone", hero CTA      |
+| Slug                | Collection            | Linked from                        |
+| ------------------- | --------------------- | ---------------------------------- |
+| `combos`            | Exclusive Combo Deals | Navbar "Combo", homepage combo row |
+| `best-sales`        | Best Selling Products | Homepage best-selling row          |
+| `new-arrivals`      | New Arrivals          | Homepage new-arrivals row          |
+| `featured-products` | Featured Products     | Homepage featured row              |
+| `offers`            | Offer Zone            | Navbar "Offer Zone", hero CTA      |
 
 - **Breadcrumb:** Home › Collection title.
 - **Header:** Collection title, one-line description, live product count.
