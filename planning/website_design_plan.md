@@ -60,9 +60,9 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **Featured Categories:** Grid of max 4 categories. ✅ [COMPLETED]
 - **Best Selling Products:** Horizontal scrolling list or grid. ✅ [COMPLETED]
 - **New Arrivals:** Curated product grid. ✅ [COMPLETED]
-- **Promotional Banner:** Secondary banner for targeted campaigns.
-- **Exclusive Combo Deals:** Dedicated section for bundled offers.
-- **Featured Products:** Curated product grid.
+- **Promotional Banner:** Secondary banner for targeted campaigns. ✅ [COMPLETED]
+- **Exclusive Combo Deals:** Dedicated section for bundled offers. ✅ [COMPLETED]
+- **Featured Products:** Curated product grid. ✅ [COMPLETED]
 - **Customer Reviews:** Carousel of approved verified-purchase reviews.
 
 ### 4.2 Product Discovery Pages
