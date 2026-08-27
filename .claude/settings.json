@@ -38,7 +38,13 @@
       "Bash(curl -s http://localhost:3123/bn/category/nope)",
       "Bash(curl -s http://localhost:3123/bn/product/nope)",
       "Bash(curl -s \"http://localhost:3123/bn/collections/zzz2\")",
-      "Bash(npx kill-port *)"
+      "Bash(npx kill-port *)",
+      "PowerShell(git -C \"d:\\\\Practice\\\\e-commerce\" status --short)",
+      "PowerShell(git -C \"d:\\\\Practice\\\\e-commerce\" log --oneline -5)",
+      "PowerShell(Get-ChildItem -Path \"d:\\\\Practice\\\\e-commerce\\\\ecommerce-website\\\\src\" -Recurse -File | Where-Object { $_.FullName -notmatch 'node_modules' } | ForEach-Object { $_.FullName.Replace\\('d:\\\\Practice\\\\e-commerce\\\\ecommerce-website\\\\',''\\) + '  [' + $_.Length + ']' })",
+      "Bash(grep -n \"^\\\\s*-\\\\s*\\\\[[ x]\\\\]\\\\|^#\\\\{1,3\\\\} \" \"Ami ekta Website banaite caitaci.md\")",
+      "Bash(grep -n \"\\\\[x\\\\]\\\\|\\\\[ \\\\]\\\\|^#\\\\{1,4\\\\} \\\\|✅\\\\|❌\\\\|COMPLETE\\\\|Done when\\\\|Status\" website_design_plan.md)",
+      "Bash(node \"C:/Users/Din/AppData/Local/Temp/claude/d--Practice-e-commerce/8b169f46-fd4b-43b0-9916-779fd4cde357/scratchpad/dead.mjs\")"
     ],
     "additionalDirectories": [
       "\\tmp"
