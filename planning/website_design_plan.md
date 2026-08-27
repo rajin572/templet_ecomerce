@@ -37,7 +37,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 
 ---
 
-## 3. Global UI Elements (Present Across All Pages)
+## 3. Global UI Elements (Present Across All Pages) ✅ [COMPLETED]
 
 ### 3.1 Two-Level Navbar ✅ [COMPLETED]
 
@@ -55,7 +55,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 
 ## 4. Public Storefront Pages
 
-### 4.1 Homepage (`/`)
+### 4.1 Homepage (`/`) ✅ [COMPLETED]
 
 - **Hero / Banner Section:** Slider or static promotional image (using Unsplash placeholders) with a Call-To-Action (CTA). ✅ [COMPLETED]
 - **Featured Categories:** Grid of max 4 categories. ✅ [COMPLETED]
@@ -68,7 +68,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 - **FAQ Session:** use Reuseable Accourdion to make it. ✅ [COMPLETED]
 - **Contact Page:** a modern contact form. ✅ [COMPLETED]
 
-### 4.2 Product Discovery Routes
+### 4.2 Product Discovery Routes ✅ [COMPLETED]
 
 There are **exactly three ways to reach products**, and no others. **`/shop` does not exist** — it was removed along with `/products`, and every link that pointed at it now points at a collection, a category, or the homepage.
 
@@ -170,7 +170,7 @@ The URL is keyed on the **product id**, not a slug — `/product/:productId`.
 
 ---
 
-## 6. Authentication Pages (Auth Flow)
+## 6. Authentication Pages (Auth Flow) => Use ReuseableForms always
 
 These pages should have a clean, focused layout (often omitting the secondary navbar to minimize distractions).
 
