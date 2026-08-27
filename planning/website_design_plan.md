@@ -53,7 +53,7 @@ The site ships in Bengali (`bn`, the default) and English (`en`). Every page in 
 
 ---
 
-## 4. Public Storefront Pages
+## 4. Public Storefront Pages ✅ [COMPLETED]
 
 ### 4.1 Homepage (`/`) ✅ [COMPLETED]
 
@@ -140,7 +140,7 @@ The URL is keyed on the **product id**, not a slug — `/product/:productId`.
 
 ---
 
-## 5. Checkout & Order Tracking Pages
+## 5. Checkout & Order Tracking Pages ✅ [COMPLETED]
 
 ### 5.1 Cart Page or Drawer (`/cart`) ✅ [COMPLETED]
 
@@ -148,22 +148,22 @@ The URL is keyed on the **product id**, not a slug — `/product/:productId`.
 - **Summary Box:** Subtotal, Discount, Coupon input, Delivery charge, Grand total.
 - **Action:** "Proceed to Checkout" button.
 
-### 5.2 Checkout Flow (`/checkout`)
+### 5.2 Checkout Flow (`/checkout`) ✅ [COMPLETED]
 
 - **Step 1 - Customer Info:** Name, Phone Number.
 - **Step 2 - Shipping:** Delivery Address, Delivery Method.
-- **Step 3 - Payment:** Cash on Delivery or Manual bKash (shows fields for bKash Number & TrxID).
+- **Step 3 - Payment:** Cash on Delivery or Manual bKash, Roket, Nagad (shows fields for bKash Number & TrxID).
 - **Step 4 - Order Summary:** Final server-validated total.
 - **Action:** "Place Order" button.
 
-### 5.3 Checkout Success / Order Confirmation (`/checkout/success`)
+### 5.3 Checkout Success / Order Confirmation (`/checkout/success`) ✅ [COMPLETED]
 
 - **Header:** "Thank You for Your Order!" success message.
 - **Content:** Display the generated Order Number, an estimated delivery timeline, and a prompt to track the order.
 - **Actions:** "Track Order" button, "Continue Shopping" button.
 - **Guest Prompt:** If the user is a guest, display an option to "Create an account to save your order history" (using the details they just provided).
 
-### 5.4 Guest Order Tracking (`/track-order`)
+### 5.4 Guest Order Tracking (`/track-order`) ✅ [COMPLETED]
 
 - **Input Form:** Order Number field.
 - **Tracking View:** Visual timeline (Pending -> Confirmed -> Processing -> Packed -> Shipped -> Delivered), displaying ordered items and status.
