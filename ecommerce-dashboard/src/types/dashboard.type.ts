@@ -1,77 +1,67 @@
 export interface IDashboardStats {
-  totalRevenue: number;
-  totalBookings: number;
-  activeUsers: number;
-  totalListings: number;
+  salesToday: number;
+  pendingOrders: number;
+  pendingPaymentVerification: number;
+  lowStockItems: number;
 }
 
-export interface IRevenueBookingsTrendPoint {
-  month: string;
+export interface ISalesTrendPoint {
+  date: string;
   Revenue: number;
 }
 
-export interface ITransportDistributionItem {
-  category: string;
+export type OrderStatusV1 =
+  | "Pending"
+  | "Confirmed"
+  | "Processing"
+  | "Packed"
+  | "Shipped"
+  | "Delivered"
+  | "Cancelled";
+
+export interface IOrdersByStatusItem {
+  category: OrderStatusV1;
   percentage: number;
 }
 
-export type VerificationFileStatus = "completed" | "pending";
+export type PaymentMethodV1 = "COD" | "bKash" | "Nagad";
 
-export interface IPendingVerificationFile {
+export interface IPaymentMethodSplitItem {
+  category: PaymentMethodV1;
+  percentage: number;
+}
+
+export interface ITopSellingProduct {
+  _id: string;
   name: string;
-  status: VerificationFileStatus;
+  unitsSold: number;
 }
 
-export interface IPendingVerification {
+export type AttentionPaymentStatus =
+  | "Pending"
+  | "Pending Verification"
+  | "Verified"
+  | "Failed";
+
+export interface IAttentionOrder {
   _id: string;
-  ownerName: string;
-  documentType: string;
-  submittedLabel: string;
-  files: IPendingVerificationFile[];
-}
-
-export type DashboardBookingStatus = "confirmed" | "pending" | "completed" | "cancelled";
-export type TransportType = "Boat" | "Air" | "Land";
-
-export interface IBookingTimelineEvent {
-  label: string;
-  dateLabel: string;
-}
-
-export interface IRecentBooking {
-  _id: string;
-  bookingCode: string;
+  orderId: string;
   customerName: string;
-  customerEmail: string;
-  listingTitle: string;
-  transportType: TransportType;
-  featured: boolean;
-  amount: number;
-  status: DashboardBookingStatus;
-  bookingDate: string;
-  bookedDaysAgoLabel: string;
-  duration: string;
-  guests: number;
-  basePrice: number;
-  timeline: IBookingTimelineEvent[];
-}
-
-export interface ITopListing {
-  _id: string;
-  rank: number;
-  name: string;
-  bookings: number;
-  revenue: number;
-  rating: number;
+  customerPhone: string;
+  total: number;
+  status: OrderStatusV1;
+  paymentMethod: PaymentMethodV1;
+  paymentStatus: AttentionPaymentStatus;
+  placedAt: string;
 }
 
 export interface IDashboardOverviewData {
   stats: IDashboardStats;
-  revenueBookingsTrend: IRevenueBookingsTrendPoint[];
-  transportDistribution: ITransportDistributionItem[];
-  pendingVerifications: IPendingVerification[];
-  recentBookings: IRecentBooking[];
-  topListings: ITopListing[];
+  salesTrend: ISalesTrendPoint[];
+  ordersByStatus: IOrdersByStatusItem[];
+  paymentMethodSplit: IPaymentMethodSplitItem[];
+  topSellingProducts: ITopSellingProduct[];
+  attentionOrders: IAttentionOrder[];
 }
 
 export interface IGetDashboardOverviewResponse {

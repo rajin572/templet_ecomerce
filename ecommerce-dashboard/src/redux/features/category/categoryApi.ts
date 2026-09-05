@@ -1,46 +1,50 @@
 import { baseApi } from "../../api/baseApi";
 import { tagTypes } from "../../tagTypes";
+import type { IApiResponse, IGetCategoryListResponse } from "@/types";
+
+type MutationArg<B = Record<string, unknown>> = {
+  body?: B;
+  params?: Record<string, string>;
+};
+
+type GetCategoriesArgs = {
+  page: number;
+  limit: number;
+  searchTerm?: string;
+};
 
 export const categoryApi = baseApi.injectEndpoints({
-  endpoints: (build) => ({
-    getCategories: build.query({
-      query: (arg: Record<string, any>) => ({
+  endpoints: (builder) => ({
+    getCategories: builder.query<IGetCategoryListResponse, GetCategoriesArgs>({
+      query: ({ page, limit, searchTerm }) => ({
         url: "/categories",
         method: "GET",
-        params: arg,
+        params: { page, limit, searchTerm },
       }),
       providesTags: [tagTypes.category],
     }),
 
-    getCategoryById: build.query({
-      query: (id: string) => ({
-        url: `/categories/${id}`,
-        method: "GET",
-      }),
-      providesTags: [tagTypes.category],
-    }),
-
-    createCategory: build.mutation({
-      query: (data) => ({
+    createCategory: builder.mutation<IApiResponse<null>, MutationArg<FormData>>({
+      query: ({ body }) => ({
         url: "/categories",
         method: "POST",
-        body: data,
+        body,
       }),
       invalidatesTags: [tagTypes.category],
     }),
 
-    updateCategory: build.mutation({
-      query: ({ id, data }) => ({
-        url: `/categories/${id}`,
+    updateCategory: builder.mutation<IApiResponse<null>, MutationArg<FormData>>({
+      query: ({ body, params }) => ({
+        url: `/categories/${params?.id}`,
         method: "PATCH",
-        body: data,
+        body,
       }),
       invalidatesTags: [tagTypes.category],
     }),
 
-    deleteCategory: build.mutation({
-      query: (id: string) => ({
-        url: `/categories/${id}`,
+    deleteCategory: builder.mutation<IApiResponse<null>, MutationArg>({
+      query: ({ params }) => ({
+        url: `/categories/${params?.id}`,
         method: "DELETE",
       }),
       invalidatesTags: [tagTypes.category],
@@ -50,7 +54,6 @@ export const categoryApi = baseApi.injectEndpoints({
 
 export const {
   useGetCategoriesQuery,
-  useGetCategoryByIdQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,

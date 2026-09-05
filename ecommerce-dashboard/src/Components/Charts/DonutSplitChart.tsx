@@ -1,19 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import { ICategorySplitItem } from "@/types";
 
-const CATEGORY_COLORS: Record<string, string> = {
-    Boats: "#1e3a8a",
-    Aircraft: "#60a5fa",
-    Land: "#bfdbfe",
-};
+interface DonutSplitDatum {
+    category: string;
+    percentage: number;
+}
 
-interface CategorySplitChartProps {
-    data: ICategorySplitItem[];
+const DEFAULT_COLORS = ["#ff5014", "#3b82f6", "#16a34a", "#d97706", "#dc2626", "#64748B", "#8b5cf6"];
+
+interface DonutSplitChartProps {
+    data: DonutSplitDatum[];
+    colors?: Record<string, string>;
     height?: number;
 }
 
-const CategorySplitChart = ({ data, height = 170 }: CategorySplitChartProps) => {
+const DonutSplitChart = ({ data, colors = {}, height = 170 }: DonutSplitChartProps) => {
+    const colorFor = (category: string, index: number) => colors[category] ?? DEFAULT_COLORS[index % DEFAULT_COLORS.length];
+
     return (
         <div>
             <div className="flex justify-center">
@@ -29,12 +31,12 @@ const CategorySplitChart = ({ data, height = 170 }: CategorySplitChartProps) => 
                             dataKey="percentage"
                             nameKey="category"
                         >
-                            {data.map((entry) => (
-                                <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? "#9ca3af"} />
+                            {data.map((entry, index) => (
+                                <Cell key={entry.category} fill={colorFor(entry.category, index)} />
                             ))}
                         </Pie>
                         <Tooltip
-                            formatter={(v: any, name: any) => [`${v}%`, name]}
+                            formatter={(value: number, name: string) => [`${value}%`, name]}
                             contentStyle={{ borderRadius: 8, fontSize: 12 }}
                         />
                     </PieChart>
@@ -42,12 +44,12 @@ const CategorySplitChart = ({ data, height = 170 }: CategorySplitChartProps) => 
             </div>
 
             <div className="flex flex-col gap-2 mt-2">
-                {data.map(({ category, percentage }) => (
+                {data.map(({ category, percentage }, index) => (
                     <div key={category} className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-2">
                             <span
                                 className="size-2.5 rounded-full shrink-0"
-                                style={{ backgroundColor: CATEGORY_COLORS[category] ?? "#9ca3af" }}
+                                style={{ backgroundColor: colorFor(category, index) }}
                             />
                             <span className="text-secondbase-color font-medium">{category}</span>
                         </span>
@@ -59,4 +61,4 @@ const CategorySplitChart = ({ data, height = 170 }: CategorySplitChartProps) => 
     );
 };
 
-export default CategorySplitChart;
+export default DonutSplitChart;

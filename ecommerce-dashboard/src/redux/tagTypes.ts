@@ -1,6 +1,7 @@
 export const tagTypes = {
   auth: "Auth",
   user: "User",
+  banner: "Banner",
   dashboard: "Dashboard",
   owner: "Owner",
   listing: "Listing",
@@ -25,6 +26,7 @@ export const tagTypes = {
 export const tagTypesList = [
   tagTypes.auth,
   tagTypes.user,
+  tagTypes.banner,
   tagTypes.dashboard,
   tagTypes.owner,
   tagTypes.listing,

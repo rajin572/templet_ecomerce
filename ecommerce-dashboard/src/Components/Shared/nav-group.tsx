@@ -1,5 +1,5 @@
-import { type ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -36,24 +36,44 @@ import { Link, useLocation } from "react-router-dom";
 export function NavGroup({ title, items }: NavGroupProps) {
   const { state, isMobile } = useSidebar();
   const href = useLocation().pathname;
+  const [isOpen, setIsOpen] = useState(true);
+  const isRail = state === "collapsed" && !isMobile;
+
+  const menu = (
+    <SidebarMenu>
+      {items.map((item) => {
+        const key = `${item.title}-${item.url}`;
+
+        if (!item.items)
+          return <SidebarMenuLink key={key} item={item} href={href} />;
+
+        if (isRail)
+          return (
+            <SidebarMenuCollapsedDropdown key={key} item={item} href={href} />
+          );
+
+        return <SidebarMenuCollapsible key={key} item={item} href={href} />;
+      })}
+    </SidebarMenu>
+  );
+
+  if (!title) {
+    return (
+      <SidebarGroup>
+        {menu}
+      </SidebarGroup>
+    );
+  }
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-primary-color uppercase">{title}</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => {
-          const key = `${item.title}-${item.url}`;
-
-          if (!item.items)
-            return <SidebarMenuLink key={key} item={item} href={href} />;
-
-          if (state === "collapsed" && !isMobile)
-            return (
-              <SidebarMenuCollapsedDropdown key={key} item={item} href={href} />
-            );
-
-          return <SidebarMenuCollapsible key={key} item={item} href={href} />;
-        })}
-      </SidebarMenu>
+      <SidebarGroupLabel asChild className="text-secondbase-color uppercase hover:text-secondary-color transition-colors">
+        <button type="button" onClick={() => setIsOpen((o) => !o)} className="w-full flex items-center justify-between cursor-pointer">
+          <span>{title}</span>
+          {isOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+        </button>
+      </SidebarGroupLabel>
+      {(isOpen || isRail) && menu}
     </SidebarGroup>
   );
 }

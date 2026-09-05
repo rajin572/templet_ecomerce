@@ -1,322 +1,162 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageWraper from "@/Components/ui/CustomUi/PageWraper";
 import RevenueAreaChart from "@/Components/Charts/RevenueAreaChart";
-import CategorySplitChart from "@/Components/Charts/CategorySplitChart";
+import DonutSplitChart from "@/Components/Charts/DonutSplitChart";
+import TopProductsBarChart from "@/Components/Charts/TopProductsBarChart";
 import DashboardStatCards from "@/Components/Dashboard/Overview/DashboardStatCards";
-import PendingVerificationsCard from "@/Components/Dashboard/Overview/PendingVerificationsCard";
-import PendingVerificationReviewModal from "@/Components/Dashboard/Overview/PendingVerificationReviewModal";
-import RecentBookingsCard from "@/Components/Dashboard/Overview/RecentBookingsCard";
-import BookingDetailPreviewModal from "@/Components/Dashboard/Overview/BookingDetailPreviewModal";
-import TopListingsCard from "@/Components/Dashboard/Overview/TopListingsCard";
-import { IDashboardOverviewData, IPendingVerification, IRecentBooking } from "@/types";
-// import {
-//   useGetDashboardOverviewQuery,
-//   useApproveVerificationMutation,
-//   useRejectVerificationMutation,
-//   useConfirmBookingMutation,
-//   useCancelBookingMutation,
-// } from "@/redux/features/dashboard/dashboardApi";
-// import tryCatchWrapper from "@/utils/tryCatchWrapper";
+import ReusableTable, { Column } from "@/Components/ui/CustomUi/ReuseableTable";
+import Tag from "@/Components/ui/CustomUi/ReuseTag";
+import { Button } from "@/Components/ui/button";
+import { formatMoney } from "@/utils/money";
+import { formatDate } from "@/utils/dateFormet";
+import { getOrderStatusTheme, getPaymentStatusTheme } from "@/utils/orderStatus";
+import { ORDER_STATUS_COLORS, PAYMENT_METHOD_COLORS } from "@/utils/chartColors";
+import { IAttentionOrder, IDashboardOverviewData } from "@/types";
+// import { useGetDashboardOverviewQuery } from "@/redux/features/dashboard/dashboardApi";
 
-// TODO: replace with real dashboard-overview API data once the endpoint exists.
+// TODO: wire to GET /admin/dashboard/overview once the endpoint exists.
 const DUMMY_OVERVIEW: IDashboardOverviewData = {
   stats: {
-    totalRevenue: 1245000,
-    totalBookings: 2010,
-    activeUsers: 12458,
-    totalListings: 1847,
+    salesToday: 4500000,
+    pendingOrders: 8,
+    pendingPaymentVerification: 3,
+    lowStockItems: 5,
   },
-  revenueBookingsTrend: [
-    { month: "Jan", Revenue: 118000 },
-    { month: "Feb", Revenue: 138000 },
-    { month: "Mar", Revenue: 152000 },
-    { month: "Apr", Revenue: 185000 },
-    { month: "May", Revenue: 228000 },
-    { month: "Jun", Revenue: 245000 },
+  salesTrend: [
+    { date: "Aug 24", Revenue: 12500 },
+    { date: "Aug 25", Revenue: 15800 },
+    { date: "Aug 26", Revenue: 11200 },
+    { date: "Aug 27", Revenue: 19400 },
+    { date: "Aug 28", Revenue: 22100 },
+    { date: "Aug 29", Revenue: 17600 },
+    { date: "Aug 30", Revenue: 25300 },
   ],
-  transportDistribution: [
-    { category: "Boats", percentage: 60 },
-    { category: "Aircraft", percentage: 40 },
+  ordersByStatus: [
+    { category: "Pending", percentage: 10 },
+    { category: "Confirmed", percentage: 15 },
+    { category: "Processing", percentage: 20 },
+    { category: "Packed", percentage: 10 },
+    { category: "Shipped", percentage: 15 },
+    { category: "Delivered", percentage: 25 },
+    { category: "Cancelled", percentage: 5 },
   ],
-  pendingVerifications: [
-    {
-      _id: "1",
-      ownerName: "Marina Elite Ltd",
-      documentType: "Business License",
-      submittedLabel: "2 hours ago",
-      files: [
-        { name: "Boat License.JPG", status: "completed" },
-        { name: "Boat Registration.PDF", status: "completed" },
-        { name: "Inspection Report.PDF", status: "completed" },
-        { name: "Safety Compliance.PDF", status: "completed" },
-        { name: "Insurance Certificate.JPG", status: "completed" },
-      ],
-    },
-    {
-      _id: "2",
-      ownerName: "Luxury Air Services",
-      documentType: "Aircraft Certificate",
-      submittedLabel: "5 hours ago",
-      files: [
-        { name: "Airworthiness Certificate.PDF", status: "completed" },
-        { name: "Pilot License.JPG", status: "completed" },
-        { name: "Insurance Certificate.PDF", status: "completed" },
-      ],
-    },
-    {
-      _id: "3",
-      ownerName: "Premium Motors",
-      documentType: "Insurance Document",
-      submittedLabel: "1 day ago",
-      files: [
-        { name: "Insurance Policy.PDF", status: "completed" },
-        { name: "Vehicle Registration.PDF", status: "completed" },
-      ],
-    },
-    {
-      _id: "4",
-      ownerName: "Ocean Adventures",
-      documentType: "Captain License",
-      submittedLabel: "2 days ago",
-      files: [
-        { name: "Captain License.JPG", status: "completed" },
-        { name: "Safety Training Certificate.PDF", status: "completed" },
-      ],
-    },
+  paymentMethodSplit: [
+    { category: "COD", percentage: 65 },
+    { category: "bKash", percentage: 25 },
+    { category: "Nagad", percentage: 10 },
   ],
-  recentBookings: [
-    {
-      _id: "1",
-      bookingCode: "BK-10234",
-      customerName: "John Smith",
-      customerEmail: "john.smith@example.com",
-      listingTitle: "Luxury Yacht - Mediterranean",
-      transportType: "Boat",
-      featured: true,
-      amount: 12500,
-      status: "confirmed",
-      bookingDate: "2026-05-20",
-      bookedDaysAgoLabel: "Booked 3 days ago",
-      duration: "3 Days",
-      guests: 4,
-      basePrice: 12500,
-      timeline: [
-        { label: "Booking Created", dateLabel: "2026-05-20 at 10:30 AM" },
-        { label: "Payment Received", dateLabel: "2026-05-20 at 10:32 AM" },
-        { label: "Booking Confirmed", dateLabel: "2026-05-20 at 10:35 AM" },
-      ],
-    },
-    {
-      _id: "2",
-      bookingCode: "BK-10233",
-      customerName: "Sarah Johnson",
-      customerEmail: "sarah.johnson@example.com",
-      listingTitle: "Private Jet - Gulfstream G650",
-      transportType: "Air",
-      featured: true,
-      amount: 45000,
-      status: "pending",
-      bookingDate: "2026-05-22",
-      bookedDaysAgoLabel: "Booked 3 days ago",
-      duration: "3 Days",
-      guests: 4,
-      basePrice: 45000,
-      timeline: [
-        { label: "Booking Created", dateLabel: "2026-05-22 at 10:30 AM" },
-        { label: "Payment Received", dateLabel: "2026-05-22 at 10:32 AM" },
-      ],
-    },
-    {
-      _id: "3",
-      bookingCode: "BK-10232",
-      customerName: "Michael Chen",
-      customerEmail: "michael.chen@example.com",
-      listingTitle: "Lamborghini Aventador",
-      transportType: "Land",
-      featured: false,
-      amount: 3200,
-      status: "confirmed",
-      bookingDate: "2026-05-19",
-      bookedDaysAgoLabel: "Booked 4 days ago",
-      duration: "1 Day",
-      guests: 2,
-      basePrice: 3200,
-      timeline: [
-        { label: "Booking Created", dateLabel: "2026-05-19 at 09:15 AM" },
-        { label: "Payment Received", dateLabel: "2026-05-19 at 09:18 AM" },
-        { label: "Booking Confirmed", dateLabel: "2026-05-19 at 09:20 AM" },
-      ],
-    },
-    {
-      _id: "4",
-      bookingCode: "BK-10231",
-      customerName: "Emma Davis",
-      customerEmail: "emma.davis@example.com",
-      listingTitle: "Catamaran - Caribbean",
-      transportType: "Boat",
-      featured: true,
-      amount: 8750,
-      status: "completed",
-      bookingDate: "2026-05-15",
-      bookedDaysAgoLabel: "Booked 3 days ago",
-      duration: "3 Days",
-      guests: 4,
-      basePrice: 8750,
-      timeline: [
-        { label: "Booking Created", dateLabel: "2026-05-15 at 10:30 AM" },
-        { label: "Payment Received", dateLabel: "2026-05-15 at 10:32 AM" },
-      ],
-    },
-    {
-      _id: "5",
-      bookingCode: "BK-10230",
-      customerName: "David Wilson",
-      customerEmail: "david.wilson@example.com",
-      listingTitle: "Helicopter Tour",
-      transportType: "Air",
-      featured: true,
-      amount: 2800,
-      status: "cancelled",
-      bookingDate: "2026-05-14",
-      bookedDaysAgoLabel: "Booked 3 days ago",
-      duration: "3 Days",
-      guests: 4,
-      basePrice: 2800,
-      timeline: [
-        { label: "Booking Created", dateLabel: "2026-05-14 at 10:30 AM" },
-        { label: "Payment Received", dateLabel: "2026-05-14 at 10:32 AM" },
-      ],
-    },
+  topSellingProducts: [
+    { _id: "1", name: "সুন্দরবনের খাঁটি মধু", unitsSold: 142 },
+    { _id: "2", name: "গাওয়া ঘি", unitsSold: 118 },
+    { _id: "3", name: "কালোজিরা তেল", unitsSold: 96 },
+    { _id: "4", name: "সরিষার তেল", unitsSold: 84 },
+    { _id: "5", name: "খেজুর (আজওয়া)", unitsSold: 61 },
   ],
-  topListings: [
-    { _id: "1", rank: 1, name: "Sunseeker 88 Yacht", bookings: 45, revenue: 562500, rating: 4.9 },
-    { _id: "2", rank: 2, name: "Gulfstream G650", bookings: 38, revenue: 1710000, rating: 5.0 },
-    { _id: "3", rank: 3, name: "Ferrari 812 Superfast", bookings: 67, revenue: 214400, rating: 4.8 },
-    { _id: "4", rank: 4, name: "Lagoon 450 Catamaran", bookings: 29, revenue: 187200, rating: 4.7 },
+  attentionOrders: [
+    { _id: "1", orderId: "AST-1029", customerName: "Rahim Uddin", customerPhone: "01712345678", total: 145000, status: "Pending", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-30T09:15:00Z" },
+    { _id: "2", orderId: "AST-1028", customerName: "Karim Sheikh", customerPhone: "01911223344", total: 320000, status: "Confirmed", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-30T08:40:00Z" },
+    { _id: "3", orderId: "AST-1027", customerName: "Nasrin Akter", customerPhone: "01611998877", total: 89000, status: "Pending", paymentMethod: "Nagad", paymentStatus: "Pending Verification", placedAt: "2026-08-29T19:05:00Z" },
+    { _id: "4", orderId: "AST-1026", customerName: "Jasim Molla", customerPhone: "01555112233", total: 210000, status: "Confirmed", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-29T15:22:00Z" },
+    { _id: "5", orderId: "AST-1025", customerName: "Fatema Begum", customerPhone: "01812009988", total: 62500, status: "Pending", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-29T11:50:00Z" },
   ],
 };
 
 const OverviewPage = () => {
   const navigate = useNavigate();
 
-  const [selectedVerification, setSelectedVerification] = useState<IPendingVerification | null>(null);
-  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
-
-  const [selectedBooking, setSelectedBooking] = useState<IRecentBooking | null>(null);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-
   // const { data } = useGetDashboardOverviewQuery();
   // const overview = data?.data;
   const overview = DUMMY_OVERVIEW;
 
-  // const [approveVerification] = useApproveVerificationMutation();
-  const handleApproveVerification = async (_verification: IPendingVerification) => {
-    // const res = await tryCatchWrapper(
-    //   approveVerification,
-    //   { params: { id: _verification._id } },
-    //   { toastLoadingMessage: "Approving document..." }
-    // );
-    // if (res?.success) {
-    setIsVerificationOpen(false);
-    // }
-  };
-
-  // const [rejectVerification] = useRejectVerificationMutation();
-  const handleRejectVerification = async (_verification: IPendingVerification) => {
-    // const res = await tryCatchWrapper(
-    //   rejectVerification,
-    //   { params: { id: _verification._id }, body: {} },
-    //   { toastLoadingMessage: "Rejecting document..." }
-    // );
-    // if (res?.success) {
-    setIsVerificationOpen(false);
-    // }
-  };
-
-  const handleContactCustomer = (booking: IRecentBooking) => {
-    window.location.href = `mailto:${booking.customerEmail}`;
-  };
-
-  // const [confirmBooking] = useConfirmBookingMutation();
-  const handleConfirmBooking = async (_booking: IRecentBooking) => {
-    // const res = await tryCatchWrapper(
-    //   confirmBooking,
-    //   { params: { id: _booking._id } },
-    //   { toastLoadingMessage: "Confirming booking..." }
-    // );
-    // if (res?.success) {
-    setIsBookingOpen(false);
-    // }
-  };
-
-  // const [cancelBooking] = useCancelBookingMutation();
-  const handleCancelBooking = async (_booking: IRecentBooking) => {
-    // const res = await tryCatchWrapper(
-    //   cancelBooking,
-    //   { params: { id: _booking._id } },
-    //   { toastLoadingMessage: "Cancelling booking..." }
-    // );
-    // if (res?.success) {
-    setIsBookingOpen(false);
-    // }
-  };
+  const columns: Column<IAttentionOrder>[] = [
+    { header: "Order ID", accessorKey: "orderId", render: (val) => <span className="font-bold">#{val}</span> },
+    {
+      header: "Customer",
+      accessorKey: "customerName",
+      render: (_, row) => (
+        <div>
+          <p className="font-medium">{row.customerName}</p>
+          <p className="text-xs text-secondbase-color">{row.customerPhone}</p>
+        </div>
+      ),
+    },
+    { header: "Total", accessorKey: "total", render: (val) => formatMoney(val) },
+    {
+      header: "Order Status",
+      accessorKey: "status",
+      render: (val) => <Tag theme={getOrderStatusTheme(val)}>{val}</Tag>,
+    },
+    {
+      header: "Payment",
+      accessorKey: "paymentStatus",
+      render: (_, row) => (
+        <div className="flex flex-col gap-1 items-start">
+          <span className="text-xs text-secondbase-color">{row.paymentMethod}</span>
+          <Tag theme={getPaymentStatusTheme(row.paymentStatus)}>{row.paymentStatus}</Tag>
+        </div>
+      ),
+    },
+    { header: "Placed", accessorKey: "placedAt", render: (val) => formatDate(val) },
+    {
+      header: "Action",
+      accessorKey: "_id",
+      render: (_, row) => (
+        <Button
+          variant="secondary"
+          size="sm"
+          className="text-xs py-1 h-auto"
+          onClick={() => navigate(`/admin/orders/${row._id}`)}
+        >
+          View Order
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <PageWraper title="Dashboard Overview" description="Monitor your platform performance and key metrics">
+    <PageWraper title="Dashboard Overview" description="Monitor your store's performance and what needs attention today">
       <DashboardStatCards stats={overview.stats} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Revenue & Bookings Trend</h2>
-          <p className="text-sm text-secondbase-color mb-2">Last 6 months performance</p>
-          <RevenueAreaChart data={overview.revenueBookingsTrend} color="#6366f1" />
+          <h2 className="text-base font-semibold text-base-color">Sales Trend</h2>
+          <p className="text-sm text-secondbase-color mb-2">Last 7 days — collected COD + verified manual payments</p>
+          <RevenueAreaChart data={overview.salesTrend} />
         </div>
 
         <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Transport Distribution</h2>
-          <p className="text-sm text-secondbase-color mb-2">Booking by category</p>
-          <CategorySplitChart data={overview.transportDistribution} />
+          <h2 className="text-base font-semibold text-base-color">Orders by Status</h2>
+          <p className="text-sm text-secondbase-color mb-2">Current order pipeline</p>
+          <DonutSplitChart data={overview.ordersByStatus} colors={ORDER_STATUS_COLORS} />
         </div>
       </div>
 
-      <PendingVerificationsCard
-        verifications={overview.pendingVerifications}
-        onViewAll={() => navigate("/admin/owner-management")}
-        onReview={(verification) => {
-          setSelectedVerification(verification);
-          setIsVerificationOpen(true);
-        }}
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentBookingsCard
-          bookings={overview.recentBookings}
-          onView={(booking) => {
-            setSelectedBooking(booking);
-            setIsBookingOpen(true);
-          }}
-        />
+        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
+          <h2 className="text-base font-semibold text-base-color">Payment Method Split</h2>
+          <p className="text-sm text-secondbase-color mb-2">Cash on Delivery vs. manual wallet transfer</p>
+          <DonutSplitChart data={overview.paymentMethodSplit} colors={PAYMENT_METHOD_COLORS} />
+        </div>
 
-        <TopListingsCard listings={overview.topListings} />
+        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
+          <h2 className="text-base font-semibold text-base-color">Top Selling Products</h2>
+          <p className="text-sm text-secondbase-color mb-2">Units sold, delivered orders only</p>
+          <TopProductsBarChart data={overview.topSellingProducts} />
+        </div>
       </div>
 
-      <PendingVerificationReviewModal
-        open={isVerificationOpen}
-        onClose={() => setIsVerificationOpen(false)}
-        verification={selectedVerification}
-        onApprove={handleApproveVerification}
-        onReject={handleRejectVerification}
-      />
-
-      <BookingDetailPreviewModal
-        open={isBookingOpen}
-        onClose={() => setIsBookingOpen(false)}
-        booking={selectedBooking}
-        onContactCustomer={handleContactCustomer}
-        onConfirm={handleConfirmBooking}
-        onCancel={handleCancelBooking}
-      />
+      <div className="bg-white rounded-xl border border-border shadow-sm p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold text-base-color">Orders Needing Attention</h2>
+            <p className="text-sm text-secondbase-color">Pending fulfilment or awaiting payment verification</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => navigate("/admin/orders")}>
+            View All Orders
+          </Button>
+        </div>
+        <ReusableTable data={overview.attentionOrders} columns={columns} />
+      </div>
     </PageWraper>
   );
 };

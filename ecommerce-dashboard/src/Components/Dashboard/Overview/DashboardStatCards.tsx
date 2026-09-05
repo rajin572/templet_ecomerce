@@ -1,4 +1,4 @@
-import { DollarSign, Calendar, Users, Tag } from "lucide-react";
+import { Wallet, Clock, ShieldAlert, PackageX } from "lucide-react";
 import { IDashboardStats } from "@/types";
 
 interface DashboardStatCardsProps {
@@ -7,10 +7,30 @@ interface DashboardStatCardsProps {
 
 const DashboardStatCards = ({ stats }: DashboardStatCardsProps) => {
   const cards = [
-    { label: "Total Revenue", value: `$${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, iconColor: "text-emerald-500" },
-    { label: "Total Bookings", value: stats.totalBookings.toLocaleString(), icon: Calendar, iconColor: "text-blue-500" },
-    { label: "Active Users", value: stats.activeUsers.toLocaleString(), icon: Users, iconColor: "text-indigo-500" },
-    { label: "Total Listings", value: stats.totalListings.toLocaleString(), icon: Tag, iconColor: "text-amber-500" },
+    {
+      label: "Sales Today",
+      value: `৳${stats.salesToday.toLocaleString()}`,
+      icon: Wallet,
+      iconColor: "text-emerald-500",
+    },
+    {
+      label: "Pending Orders",
+      value: stats.pendingOrders.toLocaleString(),
+      icon: Clock,
+      iconColor: "text-blue-500",
+    },
+    {
+      label: "Pending Payment Verification",
+      value: stats.pendingPaymentVerification.toLocaleString(),
+      icon: ShieldAlert,
+      iconColor: "text-amber-500",
+    },
+    {
+      label: "Low / Out of Stock",
+      value: stats.lowStockItems.toLocaleString(),
+      icon: PackageX,
+      iconColor: "text-red-500",
+    },
   ];
 
   return (
@@ -21,7 +41,7 @@ const DashboardStatCards = ({ stats }: DashboardStatCardsProps) => {
             <p className="text-sm text-secondbase-color">{label}</p>
             <p className="text-2xl font-bold text-base-color mt-2">{value}</p>
           </div>
-          <Icon className={`size-6 ${iconColor}`} />
+          <Icon className={`size-6 shrink-0 ${iconColor}`} />
         </div>
       ))}
     </div>

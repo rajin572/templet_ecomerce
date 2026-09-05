@@ -9,7 +9,7 @@ import {
 } from "recharts";
 
 export interface RevenueChartDataPoint {
-    month: string;
+    date: string;
     Revenue: number;
 }
 
@@ -18,13 +18,15 @@ interface RevenueAreaChartProps {
     height?: number;
     color?: string;
     gradientId?: string;
+    currencyPrefix?: string;
 }
 
 const RevenueAreaChart = ({
     data,
     height = 220,
-    color = "#7C3AED",
+    color = "#ff5014",
     gradientId = "revenueAreaGrad",
+    currencyPrefix = "৳",
 }: RevenueAreaChartProps) => {
     return (
         <ResponsiveContainer width="100%" height={height}>
@@ -37,7 +39,7 @@ const RevenueAreaChart = ({
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis
-                    dataKey="month"
+                    dataKey="date"
                     tick={{ fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
@@ -46,10 +48,10 @@ const RevenueAreaChart = ({
                     tick={{ fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                    tickFormatter={(v) => `${currencyPrefix}${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
-                    formatter={(v) => [`$${Number(v).toLocaleString()}`, "Revenue"]}
+                    formatter={(v) => [`${currencyPrefix}${Number(v).toLocaleString()}`, "Revenue"]}
                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
                 <Area

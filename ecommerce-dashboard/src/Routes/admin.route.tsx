@@ -1,47 +1,42 @@
 import OverviewPage from "@/pages/Overview/Overview";
 import {
   LayoutDashboard, ShoppingCart, Package, Box, Users, Megaphone,
-  DollarSign, Settings, ListOrdered, RotateCcw, RefreshCcw, Layers,
-  Star, Activity, UserCheck, FileText, Building2
+  ListOrdered, Layers, Star, Image, Sparkles, PackagePlus, FileBarChart,
+  Settings, UserCheck, Truck, Clock, Loader,
 } from "lucide-react";
 
 import OrdersPage from "@/pages/Sales/OrdersPage";
+import PendingOrdersPage from "@/pages/Sales/PendingOrdersPage";
+import RunningOrdersPage from "@/pages/Sales/RunningOrdersPage";
 import ManualOrdersPage from "@/pages/Sales/ManualOrdersPage";
-import ReturnsPage from "@/pages/Sales/ReturnsPage";
-import RefundsPage from "@/pages/Sales/RefundsPage";
+import OrderTrackingPage from "@/pages/Sales/OrderTrackingPage";
 
-import ProductsPage from "@/pages/Catalog/ProductsPage";
+import BannersPage from "@/pages/Website/BannersPage";
 import CategoriesPage from "@/pages/Catalog/CategoriesPage";
-import VariantsPage from "@/pages/Catalog/VariantsPage";
-import BrandsPage from "@/pages/Catalog/BrandsPage";
+import ProductsPage from "@/pages/Catalog/ProductsPage";
+import CombosPage from "@/pages/Website/CombosPage";
+import FeaturedProductsPage from "@/pages/Website/FeaturedProductsPage";
+import NewArrivalsPage from "@/pages/Website/NewArrivalsPage";
 import ReviewsPage from "@/pages/Catalog/ReviewsPage";
 
 import StockPage from "@/pages/Inventory/StockPage";
-import StockMovementPage from "@/pages/Inventory/StockMovementPage";
-import PurchasesPage from "@/pages/Inventory/PurchasesPage";
-import SuppliersPage from "@/pages/Inventory/SuppliersPage";
-import WarehousesPage from "@/pages/Inventory/WarehousesPage";
-
 import CustomersPage from "@/pages/Customers/CustomersPage";
-import SegmentsPage from "@/pages/Customers/SegmentsPage";
-import CustomerActivityPage from "@/pages/Customers/CustomerActivityPage";
-
 import CouponsPage from "@/pages/Marketing/CouponsPage";
-import CampaignsPage from "@/pages/Marketing/CampaignsPage";
-import PromotionsPage from "@/pages/Marketing/PromotionsPage";
-
-import RevenuePage from "@/pages/Finance/RevenuePage";
-import CogsPage from "@/pages/Finance/CogsPage";
-import ExpensesPage from "@/pages/Finance/ExpensesPage";
-import ReportsPage from "@/pages/Finance/ReportsPage";
-
-import EmployeesPage from "@/pages/Staff/EmployeesPage";
-import RolesPage from "@/pages/Staff/RolesPage";
-import PermissionsPage from "@/pages/Staff/PermissionsPage";
+import BasicReportsPage from "@/pages/Reports/BasicReportsPage";
 
 import SettingsPage from "@/pages/Settings/SettingsPage";
 import ProfilePage from "@/pages/Settings/ProfilePage";
 
+/**
+ * V1 scope only — see planning/admin_dashboard_design_plan.md §2.
+ *
+ * The codebase has far more pages scaffolded (Inventory/Purchases &
+ * Suppliers & Warehouses, Customers/Segments, Marketing/Campaigns &
+ * Promotions, Finance/*, Staff/Roles & Permissions) than V1 needs — those
+ * belong to later versions (V4/V5/V7/V8/V11) and are deliberately not
+ * wired into this nav. The page files still exist on disk for when their
+ * version comes up; don't delete them.
+ */
 export const adminRoutes = [
   {
     title: "",
@@ -51,6 +46,60 @@ export const adminRoutes = [
         url: "overview",
         icon: LayoutDashboard,
         element: <OverviewPage />,
+      },
+    ],
+  },
+  {
+    title: "Website Management",
+    items: [
+      {
+        title: "Banner Management",
+        url: "banners",
+        permission: "banner.manage",
+        icon: Image,
+        element: <BannersPage />,
+      },
+      {
+        title: "Category",
+        url: "categories",
+        permission: "category.view",
+        icon: Layers,
+        element: <CategoriesPage />,
+      },
+      {
+        title: "Product",
+        url: "products",
+        permission: "product.view",
+        icon: Package,
+        element: <ProductsPage />,
+      },
+      {
+        title: "Combo",
+        url: "combos",
+        permission: "combo.manage",
+        icon: Box,
+        element: <CombosPage />,
+      },
+      {
+        title: "Featured Product",
+        url: "featured-products",
+        permission: "product.view",
+        icon: Star,
+        element: <FeaturedProductsPage />,
+      },
+      {
+        title: "New Arrivals",
+        url: "new-arrivals",
+        permission: "product.view",
+        icon: Sparkles,
+        element: <NewArrivalsPage />,
+      },
+      {
+        title: "Reviews",
+        url: "reviews",
+        permission: "product.view",
+        icon: PackagePlus,
+        element: <ReviewsPage />,
       },
     ],
   },
@@ -65,6 +114,20 @@ export const adminRoutes = [
         element: <OrdersPage />,
       },
       {
+        title: "Pending Orders",
+        url: "orders/pending",
+        permission: "order.view",
+        icon: Clock,
+        element: <PendingOrdersPage />,
+      },
+      {
+        title: "Running Orders",
+        url: "orders/running",
+        permission: "order.view",
+        icon: Loader,
+        element: <RunningOrdersPage />,
+      },
+      {
         title: "Manual Orders",
         url: "manual-orders",
         permission: "order.view",
@@ -72,58 +135,11 @@ export const adminRoutes = [
         element: <ManualOrdersPage />,
       },
       {
-        title: "Returns",
-        url: "returns",
+        title: "Track Order",
+        url: "order-tracking",
         permission: "order.view",
-        icon: RotateCcw,
-        element: <ReturnsPage />,
-      },
-      {
-        title: "Refunds",
-        url: "refunds",
-        permission: "order.view",
-        icon: RefreshCcw,
-        element: <RefundsPage />,
-      },
-    ],
-  },
-  {
-    title: "Catalog",
-    items: [
-      {
-        title: "Products",
-        url: "products",
-        permission: "product.view",
-        icon: Package,
-        element: <ProductsPage />,
-      },
-      {
-        title: "Categories",
-        url: "categories",
-        permission: "category.view",
-        icon: Layers,
-        element: <CategoriesPage />,
-      },
-      {
-        title: "Variants",
-        url: "variants",
-        permission: "product.view",
-        icon: Box,
-        element: <VariantsPage />,
-      },
-      {
-        title: "Brands",
-        url: "brands",
-        permission: "brand.view",
-        icon: Star,
-        element: <BrandsPage />,
-      },
-      {
-        title: "Reviews",
-        url: "reviews",
-        permission: "product.view",
-        icon: Star,
-        element: <ReviewsPage />,
+        icon: Truck,
+        element: <OrderTrackingPage />,
       },
     ],
   },
@@ -137,34 +153,6 @@ export const adminRoutes = [
         icon: Box,
         element: <StockPage />,
       },
-      {
-        title: "Stock Movement",
-        url: "stock-movement",
-        permission: "inventory.view",
-        icon: Activity,
-        element: <StockMovementPage />,
-      },
-      {
-        title: "Purchases",
-        url: "purchases",
-        permission: "inventory.view",
-        icon: ShoppingCart,
-        element: <PurchasesPage />,
-      },
-      {
-        title: "Suppliers",
-        url: "suppliers",
-        permission: "inventory.view",
-        icon: Building2,
-        element: <SuppliersPage />,
-      },
-      {
-        title: "Warehouses",
-        url: "warehouses",
-        permission: "inventory.view",
-        icon: Building2,
-        element: <WarehousesPage />,
-      },
     ],
   },
   {
@@ -175,18 +163,6 @@ export const adminRoutes = [
         url: "customers",
         icon: Users,
         element: <CustomersPage />,
-      },
-      {
-        title: "Segments",
-        url: "segments",
-        icon: Users,
-        element: <SegmentsPage />,
-      },
-      {
-        title: "Customer Activity",
-        url: "customer-activity",
-        icon: Activity,
-        element: <CustomerActivityPage />,
       },
     ],
   },
@@ -200,76 +176,17 @@ export const adminRoutes = [
         icon: Megaphone,
         element: <CouponsPage />,
       },
-      {
-        title: "Campaigns",
-        url: "campaigns",
-        icon: Megaphone,
-        element: <CampaignsPage />,
-      },
-      {
-        title: "Promotions",
-        url: "promotions",
-        icon: Megaphone,
-        element: <PromotionsPage />,
-      },
     ],
   },
   {
-    title: "Finance",
+    title: "Reports",
     items: [
-      {
-        title: "Revenue",
-        url: "revenue",
-        permission: "finance.view",
-        icon: DollarSign,
-        element: <RevenuePage />,
-      },
-      {
-        title: "COGS",
-        url: "cogs",
-        permission: "finance.view",
-        icon: DollarSign,
-        element: <CogsPage />,
-      },
-      {
-        title: "Expenses",
-        url: "expenses",
-        permission: "finance.view",
-        icon: DollarSign,
-        element: <ExpensesPage />,
-      },
       {
         title: "Reports",
         url: "reports",
-        permission: "finance.view",
-        icon: FileText,
-        element: <ReportsPage />,
-      },
-    ],
-  },
-  {
-    title: "Staff",
-    items: [
-      {
-        title: "Employees",
-        url: "employees",
-        permission: "staff.view",
-        icon: UserCheck,
-        element: <EmployeesPage />,
-      },
-      {
-        title: "Roles",
-        url: "roles",
-        permission: "staff.manage_roles",
-        icon: UserCheck,
-        element: <RolesPage />,
-      },
-      {
-        title: "Permissions",
-        url: "permissions",
-        permission: "staff.manage_permissions",
-        icon: UserCheck,
-        element: <PermissionsPage />,
+        permission: "report.view",
+        icon: FileBarChart,
+        element: <BasicReportsPage />,
       },
     ],
   },

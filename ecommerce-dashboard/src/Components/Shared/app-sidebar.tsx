@@ -12,20 +12,29 @@ import { AllImages } from "@/assets/AllImages";
 import { useAuthUser } from "@/hooks/usePermission";
 
 export function AppSidebar() {
-  const { user, permissions, isSuperAdmin } = useAuthUser();
+  const { user } = useAuthUser();
 
-  // Entries without a `permission` are open to any signed-in staff member.
-  // Hiding is convenience only — the backend enforces the same permission.
-  const visibleGroups = adminRoutes
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => {
-        const required = (item as { permission?: string }).permission;
-        if (!required || isSuperAdmin) return true;
-        return permissions.includes(required);
-      }),
-    }))
-    .filter((group) => group.items.length > 0);
+  // FIXME: design-only phase — there is no backend yet, so `useAuthUser()`
+  // resolves no permissions and every gated item would otherwise disappear
+  // from the sidebar. Showing every group/item unfiltered so all pages are
+  // reachable for design review. Restore the commented filter below once
+  // auth is wired to a real API.
+  const visibleGroups = adminRoutes;
+
+  // const { permissions, isSuperAdmin } = useAuthUser();
+  //
+  // // Entries without a `permission` are open to any signed-in staff member.
+  // // Hiding is convenience only — the backend enforces the same permission.
+  // const visibleGroups = adminRoutes
+  //   .map((group) => ({
+  //     ...group,
+  //     items: group.items.filter((item) => {
+  //       const required = (item as { permission?: string }).permission;
+  //       if (!required || isSuperAdmin) return true;
+  //       return permissions.includes(required);
+  //     }),
+  //   }))
+  //   .filter((group) => group.items.length > 0);
 
   return (
     <Sidebar collapsible={"icon"} variant={"sidebar"}>

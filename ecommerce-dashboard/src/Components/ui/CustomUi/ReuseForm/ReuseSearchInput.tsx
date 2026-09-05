@@ -10,6 +10,7 @@ interface ReuseSearchInputProps {
     debounceDelay?: number;
     className?: string;
     showIcon?: boolean;
+    defaultValue?: string;
 }
 
 const ReuseSearchInput: React.FC<ReuseSearchInputProps> = ({
@@ -19,6 +20,7 @@ const ReuseSearchInput: React.FC<ReuseSearchInputProps> = ({
     debounceDelay = 500,
     className = "",
     showIcon = true,
+    defaultValue,
 }) => {
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -47,6 +49,7 @@ const ReuseSearchInput: React.FC<ReuseSearchInputProps> = ({
             <Input
                 type="text"
                 placeholder={placeholder}
+                defaultValue={defaultValue}
                 onChange={handleSearch}
                 className={`${showIcon ? 'pl-10 py-5' : ''} border-[#E5E5E5] bg-[#F5F5F5] outline-none! shadow-none! ring-0! text-base`}
             />
