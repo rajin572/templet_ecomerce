@@ -289,8 +289,9 @@ Stacks are attached only when `NODE_ENV !== "production"`. `globalErrorHandler` 
 ORDER_STATUS      PENDING CONFIRMED PROCESSING PACKED SHIPPED OUT_FOR_DELIVERY DELIVERED
                   DELIVERY_FAILED RETURNED_TO_ORIGIN CANCELLED
                   RETURN_REQUESTED RETURNED REFUND_PENDING REFUNDED
-PAYMENT_STATUS    PENDING COLLECTED REMITTED FAILED REFUNDED PARTIALLY_REFUNDED
-PAYMENT_METHOD    COD                       // only value the system implements — see §4.6
+PAYMENT_STATUS    PENDING PENDING_VERIFICATION VERIFIED COLLECTED REMITTED FAILED
+                  REFUNDED PARTIALLY_REFUNDED
+PAYMENT_METHOD    COD BKASH_MANUAL NAGAD_MANUAL   // manual only — see §4.6
 ORDER_SOURCE      WEBSITE FACEBOOK WHATSAPP PHONE OFFLINE MANUAL OTHER
 REVIEW_STATUS     PENDING APPROVED REJECTED HIDDEN
 TXN_TYPE          SALE COGS PURCHASE EXPENSE REFUND COD_FEE DELIVERY_COST RTO_COST
@@ -301,19 +302,23 @@ ROLES             super_admin admin manager order_manager inventory_manager acco
 
 Status transitions are validated in the service layer against an explicit transition map — no free-form status writes.
 
-### 4.6 Cash on delivery — the payment model of this system
+### 4.6 Cash on delivery + manual bKash/Nagad — the payment model of this system
 
-**The platform collects money only as cash on delivery.** No payment gateway, no online payment, no card, no bKash/Nagad/Rocket checkout. The phase-1 spec (§3.16) shows online options; the owner's decision supersedes it. Anything that assumes money arrives at checkout time is wrong here.
+**The platform never touches an automated payment gateway.** No card processing, no hosted checkout, no webhooks, no signature verification, no redirect/return URLs — that integration work does not exist in this project and is not planned. What the customer chooses at checkout is one of three **manual** methods: `COD` (pay the rider on delivery), or `BKASH_MANUAL` / `NAGAD_MANUAL` (the customer sends money themselves via the wallet app and types the sender number + Transaction ID into the order form). Anything that assumes an automated gateway confirms payment at checkout time is wrong here — a manual-wallet order is still just a claim from the customer until a human checks it.
 
 What that means in code:
 
-- **`paymentMethod` is always `COD`.** Keep it as a field with an enum of one value so a gateway can be added later without a migration — but do not write gateway adapters, redirect flows, webhook endpoints, signature verification or return URLs. That work does not exist in this project.
-- **Placing an order moves no money.** The order records `codAmount` (grand total in poisha) as the sum the rider must collect. Payment status starts `PENDING`.
-- **Cash lifecycle is three steps, and they are different events:** `PENDING` → `COLLECTED` (rider took the cash from the customer, order is `DELIVERED`) → `REMITTED` (courier settled that cash to the business). Undelivered goes `FAILED`, with the order at `DELIVERY_FAILED` → `RETURNED_TO_ORIGIN`. Never collapse `COLLECTED` and `REMITTED` into one "paid" flag — money sitting with the courier is a receivable, not cash in hand.
-- **Revenue is recognised on collection, not on order placement.** A `PENDING` order posts nothing to the finance ledger. `SALE` + `COGS` post when the order is delivered and collected. A failed delivery posts only its costs (`DELIVERY_COST`, `RTO_COST`) and restocks the goods — it must never appear as revenue.
-- **COD-specific costs are first-class:** `DELIVERY_COST` (courier charge), `COD_FEE` (courier's percentage for handling cash), `RTO_COST` (return-shipping loss on a failed delivery). These replace `PAYMENT_FEE` in the profit formula.
-- **Fake orders are the main risk.** Order confirmation (phone/OTP or a confirmation call marked in the dashboard) is part of the order flow, not an optional extra; blocked phone numbers and repeat-RTO customers are enforced server-side at order creation.
-- Money still never comes from the client: `codAmount` is recomputed server-side from items + coupon + delivery fee, and the collected amount recorded on delivery is validated against it.
+- **`paymentMethod` is `COD`, `BKASH_MANUAL` or `NAGAD_MANUAL`.** No other values, no gateway adapters.
+- **A `BKASH_MANUAL`/`NAGAD_MANUAL` order carries `manualPaymentSenderNumber` and `manualPaymentTrxId`.** Both are required at order creation for those two methods, and validated server-side (format only — the system cannot verify a TrxID against the wallet provider, since there is no API integration). **Duplicate `manualPaymentTrxId` across orders is flagged for admin review, never auto-rejected** — a rider or admin resolves it by hand.
+- **Payment status starts differently per method.** `COD` starts `PENDING`. `BKASH_MANUAL`/`NAGAD_MANUAL` start `PENDING_VERIFICATION` — the order is real and proceeds through the normal fulfilment statuses, but finance treats the cash as unconfirmed until staff mark it `VERIFIED` against the actual wallet statement (merchant dashboard/SMS), or `FAILED` if it never shows up.
+- **Placing an order moves no money the system controls.** For `COD`, the order records `codAmount` (grand total in poisha) as the sum the rider must collect. For manual wallet payments, the customer has already sent the money outside the system — the order just records their claim pending verification.
+- **Cash/verification lifecycle, and these are different events per method:**
+  - `COD`: `PENDING` → `COLLECTED` (rider took the cash, order is `DELIVERED`) → `REMITTED` (courier settled that cash to the business). Undelivered goes `FAILED`, with the order at `DELIVERY_FAILED` → `RETURNED_TO_ORIGIN`. Never collapse `COLLECTED` and `REMITTED` into one "paid" flag — money sitting with the courier is a receivable, not cash in hand.
+  - `BKASH_MANUAL`/`NAGAD_MANUAL`: `PENDING_VERIFICATION` → `VERIFIED` (staff matched the TrxID against the wallet statement) or `FAILED` (never arrived / TrxID doesn't check out — do not ship until resolved). There is no courier remittance step for these; the money is already with the business once verified.
+- **Revenue is recognised on collection/verification, not on order placement.** A `PENDING` or `PENDING_VERIFICATION` order posts nothing to the finance ledger. `SALE` + `COGS` post when a COD order is delivered-and-collected, or when a manual-wallet order is marked `VERIFIED`. A failed COD delivery posts only its costs (`DELIVERY_COST`, `RTO_COST`) and restocks the goods; a `FAILED` manual payment restocks the goods and posts no revenue either.
+- **COD-specific costs are first-class:** `DELIVERY_COST` (courier charge), `COD_FEE` (courier's percentage for handling cash), `RTO_COST` (return-shipping loss on a failed delivery). Manual-wallet orders still incur `DELIVERY_COST` but never `COD_FEE`. These replace `PAYMENT_FEE` in the profit formula.
+- **Fake orders are the main risk, for every method.** Order confirmation (phone/OTP or a confirmation call marked in the dashboard) is part of the order flow, not an optional extra; blocked phone numbers and repeat-RTO customers are enforced server-side at order creation regardless of payment method.
+- Money amounts still never come from the client: `codAmount` and the manual-payment claimed amount are recomputed server-side from items + coupon + delivery fee, and the collected/verified amount is validated against it.
 
 ---
 
@@ -377,9 +382,10 @@ All three must exit clean — zero type errors, zero lint errors, zero new warni
 | New `<table>` / `<Dialog>` / custom pagination    | `ReusableTable`, `ReuseableModal`, `ReusablePagination`                      |
 | `text-gray-500`, `#F97316` in JSX                 | design tokens (`text-muted-foreground`, `bg-primary`, `text-base-color`)     |
 | Total/discount computed in the browser and posted | server recomputes from cart + coupon + zone                                  |
-| Posting revenue when the order is placed          | post `SALE`/`COGS` when the order is delivered **and** cash collected        |
+| Posting revenue when the order is placed          | post `SALE`/`COGS` on COD collection or manual-payment `VERIFIED` — see §4.6 |
 | One `isPaid` flag for COD                         | separate `COLLECTED` (rider has it) from `REMITTED` (business has it)        |
-| Building gateway adapters / webhooks              | COD only — see §4.6                                                          |
+| Building gateway adapters / webhooks for bKash/Nagad | manual entry only: sender number + TrxID, staff verify — see §4.6         |
+| Auto-rejecting a duplicate manual-payment TrxId   | flag for admin review, never auto-reject — see §4.6                          |
 | `price: number` as float ৳                        | integer poisha + `formatMoney` at render                                     |
 | `params: { search }`                              | `params: { searchTerm }`                                                     |
 | Deleting a document                               | `isDeleted` / archived status                                                |
