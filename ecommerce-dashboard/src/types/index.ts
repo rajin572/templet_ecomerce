@@ -11,6 +11,7 @@ export * from './customer.type';
 export * from './dashboard.type';
 export * from './legalDocuments.type';
 export * from './listing.type';
+export * from './newsletter.type';
 export * from './order.type';
 export * from './owner.type';
 export * from './payment.type';

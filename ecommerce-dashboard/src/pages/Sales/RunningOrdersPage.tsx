@@ -10,7 +10,8 @@ import { Button } from "@/Components/ui/button";
 import { ArrowRight, Ban, Eye } from "lucide-react";
 import OrderDetailSheet from "@/Components/Dashboard/Orders/OrderDetailSheet";
 import ShipOrderModal from "@/Components/Dashboard/Orders/ShipOrderModal";
-import { getOrderStatusTheme, getPaymentStatusTheme } from "@/utils/orderStatus";
+import PaymentStatusCell from "@/Components/Dashboard/Orders/PaymentStatusCell";
+import { getOrderStatusTheme } from "@/utils/orderStatus";
 import { useOrders, advanceOrder, shipOrder, cancelOrder, NEXT_STATUS } from "@/store/orderStore";
 import type { IOrder, IOrderStatus } from "@/types";
 
@@ -69,12 +70,7 @@ const RunningOrdersPage = () => {
       </div>
     ) },
     { header: "Amount", accessorKey: "total", render: (val) => `৳${val}` },
-    { header: "Payment", accessorKey: "paymentMethod", render: (val, row) => (
-      <div className="flex flex-col">
-        <span>{val}</span>
-        <Tag theme={getPaymentStatusTheme(row.paymentStatus)} className="mt-0.5 w-fit">{row.paymentStatus}</Tag>
-      </div>
-    ) },
+    { header: "Payment", accessorKey: "paymentMethod", render: (_val, row) => <PaymentStatusCell order={row} /> },
     { header: "Status", accessorKey: "status", render: (val) => <Tag theme={getOrderStatusTheme(val)}>{val}</Tag> },
     {
       header: "Actions", accessorKey: "_id", render: (_, row) => {

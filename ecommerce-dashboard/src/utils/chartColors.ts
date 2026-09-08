@@ -8,6 +8,7 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   Shipped: "#ff5014",
   Delivered: "#16a34a",
   Cancelled: "#dc2626",
+  Returned: "#a855f7",
 };
 
 export const PAYMENT_METHOD_COLORS: Record<string, string> = {

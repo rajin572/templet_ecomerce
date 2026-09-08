@@ -7,11 +7,13 @@ export type IOrderStatus =
   | "Packed"
   | "Shipped"
   | "Delivered"
-  | "Cancelled";
+  | "Cancelled"
+  | "Returned";
 
 export type IOrderSource = "Website" | "Facebook" | "WhatsApp" | "Phone" | "Offline";
 export type IOrderPaymentMethod = "COD" | "bKash" | "Nagad";
 export type IOrderPaymentStatus = "Pending" | "Pending Verification" | "Verified" | "Failed";
+export type IOrderRefundStatus = "pending" | "refunded";
 
 export interface IOrderItem {
   productId: string;
@@ -46,6 +48,8 @@ export interface IOrder {
   status: IOrderStatus;
   courierName?: string;
   courierTrackingId?: string;
+  /** Only set once an order reaches "Returned". */
+  refundStatus?: IOrderRefundStatus;
   statusHistory: IOrderStatusEvent[];
   placedAt: string;
 }

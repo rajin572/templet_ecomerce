@@ -9,16 +9,15 @@ import { cn } from "@/lib/utils";
 
 // TODO: wire to GET/PATCH /settings once it exists — this form edits local
 // component state until then, per AGENTS.md §2.8.
-const TABS = ["General", "Payment Gateways", "Shipping & Delivery", "Notifications", "SEO Settings"] as const;
+const TABS = ["General", "Payment Gateways", "Shipping & Delivery", "SEO Settings"] as const;
 type Tab = typeof TABS[number];
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("General");
 
   const [general, setGeneral] = useState({ storeName: "ECommerce", tagline: "Premium Food & Spices", email: "support@ecommerce.com", phone: "+880 1XXXXXXXXX", currency: "BDT", timezone: "Asia/Dhaka" });
-  const [payment, setPayment] = useState({ codEnabled: true, bkashNumber: "01XXXXXXXXX", nagadNumber: "01XXXXXXXXX", requireTrxId: true });
+  const [payment, setPayment] = useState({ codEnabled: true, bkashNumber: "01XXXXXXXXX", nagadNumber: "01XXXXXXXXX" });
   const [shipping, setShipping] = useState({ dhakaFee: 60, outsideDhakaFee: 120, freeShippingThreshold: 2000 });
-  const [notifications, setNotifications] = useState({ orderConfirmationSms: true, orderConfirmationEmail: false, lowStockAlert: true, lowStockThreshold: 20 });
   const [seo, setSeo] = useState({ metaTitle: "ECommerce — খাঁটি মধু, মশলা ও খাদ্যপণ্য", metaDescription: "সরাসরি উৎপাদক থেকে খাঁটি মধু, মশলা ও প্রিমিয়াম খাদ্যপণ্য, ক্যাশ অন ডেলিভারিতে।" });
 
   const handleSave = () => {
@@ -115,13 +114,6 @@ const SettingsPage = () => {
                   <Input value={payment.nagadNumber} onChange={(e) => setPayment((s) => ({ ...s, nagadNumber: e.target.value }))} />
                 </div>
               </div>
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <div>
-                  <p className="font-medium text-sm">Require Transaction ID</p>
-                  <p className="text-xs text-secondbase-color">Customer must enter the TrxID before a manual payment is marked "Pending Verification"</p>
-                </div>
-                <Switch checked={payment.requireTrxId} onCheckedChange={(v) => setPayment((s) => ({ ...s, requireTrxId: v }))} />
-              </div>
             </div>
           )}
 
@@ -142,30 +134,6 @@ const SettingsPage = () => {
                   <Input type="number" value={shipping.freeShippingThreshold} onChange={(e) => setShipping((s) => ({ ...s, freeShippingThreshold: Number(e.target.value) }))} />
                 </div>
               </div>
-            </div>
-          )}
-
-          {activeTab === "Notifications" && (
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-              <h2 className="text-lg font-bold">Notifications</h2>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">SMS on order confirmation</p>
-                <Switch checked={notifications.orderConfirmationSms} onCheckedChange={(v) => setNotifications((s) => ({ ...s, orderConfirmationSms: v }))} />
-              </div>
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <p className="text-sm font-medium">Email on order confirmation</p>
-                <Switch checked={notifications.orderConfirmationEmail} onCheckedChange={(v) => setNotifications((s) => ({ ...s, orderConfirmationEmail: v }))} />
-              </div>
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <p className="text-sm font-medium">Low stock alerts</p>
-                <Switch checked={notifications.lowStockAlert} onCheckedChange={(v) => setNotifications((s) => ({ ...s, lowStockAlert: v }))} />
-              </div>
-              {notifications.lowStockAlert && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Alert when stock falls below</label>
-                  <Input type="number" className="max-w-40" value={notifications.lowStockThreshold} onChange={(e) => setNotifications((s) => ({ ...s, lowStockThreshold: Number(e.target.value) }))} />
-                </div>
-              )}
             </div>
           )}
 

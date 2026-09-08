@@ -2,12 +2,15 @@ import OverviewPage from "@/pages/Overview/Overview";
 import {
   LayoutDashboard, ShoppingCart, Package, Box, Users, Megaphone,
   ListOrdered, Layers, Star, Image, Sparkles, PackagePlus, FileBarChart,
-  Settings, UserCheck, Truck, Clock, Loader,
+  Settings, UserCheck, Truck, Clock, Loader, Mail, ShieldCheck, UserCog, Undo2,
+  BarChart3,
 } from "lucide-react";
 
+import SalesOverviewPage from "@/pages/Sales/SalesOverviewPage";
 import OrdersPage from "@/pages/Sales/OrdersPage";
 import PendingOrdersPage from "@/pages/Sales/PendingOrdersPage";
 import RunningOrdersPage from "@/pages/Sales/RunningOrdersPage";
+import ReturnsPage from "@/pages/Sales/ReturnsPage";
 import ManualOrdersPage from "@/pages/Sales/ManualOrdersPage";
 import OrderTrackingPage from "@/pages/Sales/OrderTrackingPage";
 
@@ -22,7 +25,11 @@ import ReviewsPage from "@/pages/Catalog/ReviewsPage";
 import StockPage from "@/pages/Inventory/StockPage";
 import CustomersPage from "@/pages/Customers/CustomersPage";
 import CouponsPage from "@/pages/Marketing/CouponsPage";
+import NewsletterPage from "@/pages/Marketing/NewsletterPage";
 import BasicReportsPage from "@/pages/Reports/BasicReportsPage";
+
+import EmployeesPage from "@/pages/Staff/EmployeesPage";
+import RolesPage from "@/pages/Staff/RolesPage";
 
 import SettingsPage from "@/pages/Settings/SettingsPage";
 import ProfilePage from "@/pages/Settings/ProfilePage";
@@ -32,10 +39,12 @@ import ProfilePage from "@/pages/Settings/ProfilePage";
  *
  * The codebase has far more pages scaffolded (Inventory/Purchases &
  * Suppliers & Warehouses, Customers/Segments, Marketing/Campaigns &
- * Promotions, Finance/*, Staff/Roles & Permissions) than V1 needs — those
- * belong to later versions (V4/V5/V7/V8/V11) and are deliberately not
- * wired into this nav. The page files still exist on disk for when their
- * version comes up; don't delete them.
+ * Promotions, Finance/*, Staff/Permissions) than V1 needs — those belong to
+ * later versions and are deliberately not wired into this nav. The page
+ * files still exist on disk for when their version comes up; don't delete
+ * them. Staff/EmployeesPage and Staff/RolesPage ARE wired in (Administration
+ * group below) — Permissions is folded into the role edit modal instead of
+ * being its own page, so Staff/PermissionsPage.tsx stays unwired.
  */
 export const adminRoutes = [
   {
@@ -107,6 +116,13 @@ export const adminRoutes = [
     title: "Sales",
     items: [
       {
+        title: "Sales Overview",
+        url: "sales-overview",
+        permission: "order.view",
+        icon: BarChart3,
+        element: <SalesOverviewPage />,
+      },
+      {
         title: "Orders",
         url: "orders",
         permission: "order.view",
@@ -126,6 +142,13 @@ export const adminRoutes = [
         permission: "order.view",
         icon: Loader,
         element: <RunningOrdersPage />,
+      },
+      {
+        title: "Returns",
+        url: "orders/returns",
+        permission: "order.view",
+        icon: Undo2,
+        element: <ReturnsPage />,
       },
       {
         title: "Manual Orders",
@@ -161,6 +184,7 @@ export const adminRoutes = [
       {
         title: "All Customers",
         url: "customers",
+        permission: "customer.view",
         icon: Users,
         element: <CustomersPage />,
       },
@@ -176,6 +200,13 @@ export const adminRoutes = [
         icon: Megaphone,
         element: <CouponsPage />,
       },
+      {
+        title: "Newsletter",
+        url: "newsletter",
+        permission: "newsletter.manage",
+        icon: Mail,
+        element: <NewsletterPage />,
+      },
     ],
   },
   {
@@ -187,6 +218,25 @@ export const adminRoutes = [
         permission: "report.view",
         icon: FileBarChart,
         element: <BasicReportsPage />,
+      },
+    ],
+  },
+  {
+    title: "Administration",
+    items: [
+      {
+        title: "Admins",
+        url: "admins",
+        permission: "staff.manage",
+        icon: UserCog,
+        element: <EmployeesPage />,
+      },
+      {
+        title: "Roles & Permissions",
+        url: "roles",
+        permission: "staff.manage",
+        icon: ShieldCheck,
+        element: <RolesPage />,
       },
     ],
   },

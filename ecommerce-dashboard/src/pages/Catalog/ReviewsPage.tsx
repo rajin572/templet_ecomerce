@@ -4,41 +4,27 @@ import { toast } from 'sonner';
 import PageWraper from "@/Components/ui/CustomUi/PageWraper";
 import ReusableTable, { Column } from "@/Components/ui/CustomUi/ReuseableTable";
 import ReuseSearchInput from "@/Components/ui/CustomUi/ReuseForm/ReuseSearchInput";
-import ReuseFilterSelect from "@/Components/ui/CustomUi/ReuseForm/ReuseFilterSelect";
 import ReuseRating from "@/Components/ui/CustomUi/ReuseRating";
 import ConfirmModal from "@/Components/ui/CustomUi/Modal/ConfirmModal";
-import Tag from "@/Components/ui/CustomUi/ReuseTag";
 import { Button } from "@/Components/ui/button";
-import { Eye, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import ReviewDetailModal from "@/Components/Dashboard/Reviews/ReviewDetailModal";
 import { DUMMY_REVIEWS } from "@/data/dummyStore";
-import type { IReview, ReviewStatus } from "@/types";
-// import { useGetReviewsQuery, useModerateReviewMutation, useReplyToReviewMutation, useDeleteReviewMutation } from "@/redux/features/review/reviewApi";
+import type { IReview } from "@/types";
+// import { useGetReviewsQuery, useReplyToReviewMutation, useDeleteReviewMutation } from "@/redux/features/review/reviewApi";
 // import tryCatchWrapper from "@/utils/tryCatchWrapper";
 
 // TODO: wire to useGetReviewsQuery once GET /reviews exists — this list lives
-// in local component state until then, per AGENTS.md §2.8.
-const STATUS_THEME: Record<ReviewStatus, "success" | "warning" | "error"> = {
-  published: "success",
-  pending: "warning",
-  rejected: "error",
-};
-
+// in local component state until then, per AGENTS.md §2.8. Reviews go live
+// immediately on submission — there is no approval queue.
 const ReviewsPage = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [reviews, setReviews] = useState<IReview[]>(DUMMY_REVIEWS);
 
   const [viewing, setViewing] = useState<IReview | null>(null);
   const [deleting, setDeleting] = useState<IReview | null>(null);
-
-  const handleModerate = (id: string, status: ReviewStatus) => {
-    setReviews((prev) => prev.map((r) => (r._id === id ? { ...r, status } : r)));
-    setViewing((prev) => (prev && prev._id === id ? { ...prev, status } : prev));
-    toast.success(status === "published" ? "Review approved and published" : "Review rejected");
-  };
 
   const handleReply = (id: string, reply: string) => {
     setReviews((prev) => prev.map((r) => (r._id === id ? { ...r, adminReply: reply || undefined } : r)));
@@ -55,12 +41,10 @@ const ReviewsPage = () => {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return reviews.filter((r) => {
-      const matchesTerm = !term || r.productName.toLowerCase().includes(term) || r.customerName.toLowerCase().includes(term) || r.orderId.toLowerCase().includes(term);
-      const matchesStatus = !statusFilter || r.status === statusFilter;
-      return matchesTerm && matchesStatus;
-    });
-  }, [reviews, search, statusFilter]);
+    return reviews.filter(
+      (r) => !term || r.productName.toLowerCase().includes(term) || r.customerName.toLowerCase().includes(term) || r.orderId.toLowerCase().includes(term)
+    );
+  }, [reviews, search]);
 
   const columns: Column<IReview>[] = [
     {
@@ -91,24 +75,13 @@ const ReviewsPage = () => {
       ),
     },
     { header: "Rating", accessorKey: "rating", render: (val) => <ReuseRating value={val} canChange={false} size={14} /> },
-    { header: "Comment", accessorKey: "comment", width: 260, render: (val) => <span className="line-clamp-2 text-sm">{val}</span> },
-    { header: "Status", accessorKey: "status", render: (val) => <Tag theme={STATUS_THEME[val as ReviewStatus]} className="capitalize">{val}</Tag> },
+    { header: "Comment", accessorKey: "comment", width: 280, render: (val) => <span className="line-clamp-2 text-sm">{val}</span> },
     {
       header: "Actions", accessorKey: "_id", render: (_, row) => (
         <div className="flex gap-2">
           <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 bg-blue-50" onClick={() => setViewing(row)}>
             <Eye className="size-4" />
           </Button>
-          {row.status === "pending" && (
-            <>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-success bg-green-50" title="Approve" onClick={() => handleModerate(row._id, "published")}>
-                <CheckCircle2 className="size-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-error bg-red-50" title="Reject" onClick={() => handleModerate(row._id, "rejected")}>
-                <XCircle className="size-4" />
-              </Button>
-            </>
-          )}
           <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 bg-red-50" onClick={() => setDeleting(row)}>
             <Trash2 className="size-4" />
           </Button>
@@ -118,23 +91,9 @@ const ReviewsPage = () => {
   ];
 
   return (
-    <PageWraper title="Reviews" description="Moderate customer reviews. Each review is tied to the product and order it was left on.">
+    <PageWraper title="Reviews" description="Customer reviews, tied to the product and order they were left on. Reviews are visible on the storefront as soon as they're submitted.">
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          <ReuseSearchInput setSearch={setSearch} setPage={setCurrentPage} placeholder="Search by product, customer or order ID..." className="max-w-md" />
-          <ReuseFilterSelect
-            value={statusFilter}
-            onChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
-            placeholder="All Statuses"
-            allowClear
-            onClear={() => setStatusFilter("")}
-            options={[
-              { label: "Pending", value: "pending" },
-              { label: "Published", value: "published" },
-              { label: "Rejected", value: "rejected" },
-            ]}
-          />
-        </div>
+        <ReuseSearchInput setSearch={setSearch} setPage={setCurrentPage} placeholder="Search by product, customer or order ID..." className="max-w-md" />
         <ReusableTable
           data={filtered}
           columns={columns}
@@ -146,7 +105,7 @@ const ReviewsPage = () => {
         />
       </div>
 
-      <ReviewDetailModal open={!!viewing} onOpenChange={(o) => !o && setViewing(null)} review={viewing} onModerate={handleModerate} onReply={handleReply} />
+      <ReviewDetailModal open={!!viewing} onOpenChange={(o) => !o && setViewing(null)} review={viewing} onReply={handleReply} />
 
       <ConfirmModal
         open={!!deleting}

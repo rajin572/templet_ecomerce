@@ -43,7 +43,18 @@ export const rejectOrder = (orderId: string, reason?: string) =>
 export const cancelOrder = (orderId: string, reason?: string) =>
   setStatus(orderId, "Cancelled", reason ? `Cancelled — ${reason}` : "Cancelled by admin");
 
-export const advanceOrder = (orderId: string, nextStatus: IOrderStatus, note?: string) => setStatus(orderId, nextStatus, note);
+export const advanceOrder = (orderId: string, nextStatus: IOrderStatus, note?: string) => {
+  // Cash on Delivery is collected at the door, so reaching Delivered is the
+  // moment a COD payment is actually confirmed — no separate manual step.
+  if (nextStatus === "Delivered") {
+    orders = orders.map((o) =>
+      o._id === orderId && o.paymentMethod === "COD" && o.paymentStatus === "Pending"
+        ? { ...o, paymentStatus: "Verified" }
+        : o
+    );
+  }
+  setStatus(orderId, nextStatus, note ?? (nextStatus === "Delivered" ? "COD collected on delivery" : undefined));
+};
 
 export const shipOrder = (orderId: string, courierName: string, courierTrackingId: string) => {
   orders = orders.map((o) => (o._id === orderId ? { ...o, courierName, courierTrackingId } : o));
@@ -55,4 +66,26 @@ export const NEXT_STATUS: Partial<Record<IOrderStatus, IOrderStatus>> = {
   Processing: "Packed",
   Packed: "Shipped",
   Shipped: "Delivered",
+};
+
+/** Verify or fail a manual bKash/Nagad transfer against the wallet statement. */
+export const verifyPayment = (orderId: string) => {
+  orders = orders.map((o) => (o._id === orderId ? { ...o, paymentStatus: "Verified" } : o));
+  emit();
+};
+
+export const failPayment = (orderId: string) => {
+  orders = orders.map((o) => (o._id === orderId ? { ...o, paymentStatus: "Failed" } : o));
+  emit();
+};
+
+/** Only reachable from Delivered — the customer sent the product back after receiving it. */
+export const returnOrder = (orderId: string, reason: string) => {
+  orders = orders.map((o) => (o._id === orderId ? { ...o, refundStatus: "pending" as const } : o));
+  setStatus(orderId, "Returned", reason);
+};
+
+export const markRefunded = (orderId: string) => {
+  orders = orders.map((o) => (o._id === orderId ? { ...o, refundStatus: "refunded" } : o));
+  emit();
 };

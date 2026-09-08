@@ -34,8 +34,9 @@ const ORDERS_BY_STATUS: IOrdersByStatusItem[] = [
   { category: "Processing", percentage: 20 },
   { category: "Packed", percentage: 10 },
   { category: "Shipped", percentage: 15 },
-  { category: "Delivered", percentage: 25 },
+  { category: "Delivered", percentage: 22 },
   { category: "Cancelled", percentage: 5 },
+  { category: "Returned", percentage: 3 },
 ];
 
 

@@ -1,7 +1,5 @@
 import type { IMeta } from "./common.type";
 
-export type ReviewStatus = "pending" | "published" | "rejected";
-
 export interface IReview {
   _id: string;
   orderId: string;
@@ -13,7 +11,6 @@ export interface IReview {
   rating: number;
   comment: string;
   images?: string[];
-  status: ReviewStatus;
   adminReply?: string;
   createdAt: string;
 }

@@ -4,11 +4,10 @@ import PageWraper from "@/Components/ui/CustomUi/PageWraper";
 import ReusableTable, { Column } from "@/Components/ui/CustomUi/ReuseableTable";
 import ReuseSearchInput from "@/Components/ui/CustomUi/ReuseForm/ReuseSearchInput";
 import ConfirmModal from "@/Components/ui/CustomUi/Modal/ConfirmModal";
-import Tag from "@/Components/ui/CustomUi/ReuseTag";
 import { Button } from "@/Components/ui/button";
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import OrderDetailSheet from "@/Components/Dashboard/Orders/OrderDetailSheet";
-import { getPaymentStatusTheme } from "@/utils/orderStatus";
+import PaymentStatusCell from "@/Components/Dashboard/Orders/PaymentStatusCell";
 import { useOrders, acceptOrder, rejectOrder } from "@/store/orderStore";
 import type { IOrder } from "@/types";
 
@@ -50,14 +49,7 @@ const PendingOrdersPage = () => {
     ) },
     { header: "Placed", accessorKey: "placedAt", render: (val) => new Date(val).toLocaleString("en-BD", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true }) },
     { header: "Amount", accessorKey: "total", render: (val) => `৳${val}` },
-    {
-      header: "Payment", accessorKey: "paymentMethod", render: (val, row) => (
-        <div className="flex flex-col">
-          <span>{val}</span>
-          <Tag theme={getPaymentStatusTheme(row.paymentStatus)} className="mt-0.5 w-fit">{row.paymentStatus}</Tag>
-        </div>
-      ),
-    },
+    { header: "Payment", accessorKey: "paymentMethod", render: (_val, row) => <PaymentStatusCell order={row} /> },
     {
       header: "Actions", accessorKey: "_id", render: (_, row) => (
         <div className="flex gap-2">

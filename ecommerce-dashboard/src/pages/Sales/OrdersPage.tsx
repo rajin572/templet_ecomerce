@@ -8,7 +8,8 @@ import Tag from "@/Components/ui/CustomUi/ReuseTag";
 import { Button } from "@/Components/ui/button";
 import { Eye, X } from "lucide-react";
 import OrderDetailSheet from "@/Components/Dashboard/Orders/OrderDetailSheet";
-import { getOrderStatusTheme, getPaymentStatusTheme } from "@/utils/orderStatus";
+import PaymentStatusCell from "@/Components/Dashboard/Orders/PaymentStatusCell";
+import { getOrderStatusTheme } from "@/utils/orderStatus";
 import { useOrders } from "@/store/orderStore";
 import type { IOrder } from "@/types";
 // import { useGetOrdersQuery } from "@/redux/features/order/orderApi";
@@ -43,18 +44,11 @@ const OrdersPage = () => {
     { header: "Date", accessorKey: "placedAt", render: (val) => new Date(val).toLocaleString("en-BD", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true }) },
     { header: "Amount", accessorKey: "total", render: (val) => `৳${val}` },
     { header: "Source", accessorKey: "source", render: (val) => <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold">{val}</span> },
-    {
-      header: "Payment", accessorKey: "paymentMethod", render: (val, row) => (
-        <div className="flex flex-col">
-          <span>{val}</span>
-          <Tag theme={getPaymentStatusTheme(row.paymentStatus)} className="mt-0.5 w-fit">{row.paymentStatus}</Tag>
-        </div>
-      ),
-    },
+    { header: "Payment", accessorKey: "paymentMethod", render: (_val, row) => <PaymentStatusCell order={row} /> },
     { header: "Status", accessorKey: "status", render: (val) => <Tag theme={getOrderStatusTheme(val)}>{val}</Tag> },
     {
       header: "Action", accessorKey: "_id", render: (_, row) => (
-        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10" onClick={() => setViewingId(row._id)}>
+        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 hover:text-primary" onClick={() => setViewingId(row._id)}>
           <Eye className="mr-2 size-4" /> View
         </Button>
       ),
@@ -78,7 +72,7 @@ const OrdersPage = () => {
             placeholder="All Statuses"
             allowClear
             onClear={() => setStatusFilter("")}
-            options={["Pending", "Confirmed", "Processing", "Packed", "Shipped", "Delivered", "Cancelled"].map((s) => ({ label: s, value: s }))}
+            options={["Pending", "Confirmed", "Processing", "Packed", "Shipped", "Delivered", "Cancelled", "Returned"].map((s) => ({ label: s, value: s }))}
           />
           <ReuseFilterSelect
             value={paymentFilter}

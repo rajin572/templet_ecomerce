@@ -2,7 +2,10 @@
 // yet — see AGENTS.md §2.8). Categories/products/orders/reviews all point at
 // each other's real ids so pages built against this data stay consistent
 // instead of each page inventing its own disconnected fixtures.
-import type { ICategory, IProduct, ICustomer, IOrder, IReview, ICoupon } from "@/types";
+import type {
+  ICategory, IProduct, ICustomer, IOrder, IReview, ICoupon,
+  IPermission, IRole, IStaffListItem, INewsletterSubscriber,
+} from "@/types";
 
 export const DUMMY_CATEGORIES: ICategory[] = [
   { _id: "cat-honey", name: "Honey", slug: "honey", parentId: null, status: "active", order: 1, createdAt: "2026-08-01T00:00:00Z" },
@@ -33,7 +36,7 @@ export const DUMMY_PRODUCTS: IProduct[] = [
 
 export const DUMMY_CUSTOMERS: ICustomer[] = [
   { _id: "CUST-001", name: "Rahim Uddin", phone: "01711223344", email: "rahim@example.com", address: "House 12, Road 4, Dhanmondi, Dhaka", orders: 2, spent: 3960, type: "Registered", status: "Active", joinedAt: "2026-05-02T00:00:00Z" },
-  { _id: "CUST-002", name: "Karim Hassan", phone: "01822334455", email: "karim@example.com", address: "Flat 3B, Agrabad, Chattogram", orders: 1, spent: 350, type: "Guest", status: "Active", joinedAt: "2026-06-14T00:00:00Z" },
+  { _id: "CUST-002", name: "Karim Hassan", phone: "01822334455", email: "karim@example.com", address: "Flat 3B, Agrabad, Chattogram", orders: 2, spent: 350, type: "Guest", status: "Active", joinedAt: "2026-06-14T00:00:00Z" },
   { _id: "CUST-003", name: "Salma Begum", phone: "01933445566", email: "salma@example.com", address: "45 Zindabazar, Sylhet", orders: 2, spent: 4400, type: "Registered", status: "Active", joinedAt: "2026-04-20T00:00:00Z" },
   { _id: "CUST-004", name: "Jamal Bhuiyan", phone: "01644556677", email: "", address: "Village Rd, Bogura Sadar, Bogura", orders: 1, spent: 2200, type: "Offline", status: "Active", joinedAt: "2026-07-01T00:00:00Z" },
   { _id: "CUST-005", name: "Farzana Yasmin", phone: "01555667788", email: "farzana@example.com", address: "House 8, Uttara Sector 7, Dhaka", orders: 1, spent: 0, type: "Registered", status: "Active", joinedAt: "2026-07-22T00:00:00Z" },
@@ -158,6 +161,24 @@ export const DUMMY_ORDERS: IOrder[] = [
     ],
     placedAt: "2026-08-15T09:00:00Z",
   },
+  {
+    _id: "8", orderId: "ORD-10045", customerName: "Karim Hassan", customerPhone: "01822334455",
+    customerAddress: "Flat 3B, Agrabad, Chattogram", source: "Website",
+    items: [{ productId: p("prod-oil-mustard")._id, name: p("prod-oil-mustard").name, image: p("prod-oil-mustard").images[0], unit: "1L", price: 350, quantity: 1 }],
+    subtotal: 350, deliveryFee: 100, discount: 0, total: 450,
+    paymentMethod: "COD", paymentStatus: "Verified",
+    status: "Returned", refundStatus: "pending", courierName: "Pathao Courier", courierTrackingId: "PTH-66210",
+    statusHistory: [
+      { status: "Pending", at: "2026-08-10T09:00:00Z" },
+      { status: "Confirmed", at: "2026-08-10T09:30:00Z" },
+      { status: "Processing", at: "2026-08-10T13:00:00Z" },
+      { status: "Packed", at: "2026-08-11T09:00:00Z" },
+      { status: "Shipped", note: "Handed to Pathao Courier — PTH-66210", at: "2026-08-11T15:00:00Z" },
+      { status: "Delivered", note: "COD collected on delivery", at: "2026-08-13T12:00:00Z" },
+      { status: "Returned", note: "Bottle arrived leaking; customer requested a return.", at: "2026-08-15T10:00:00Z" },
+    ],
+    placedAt: "2026-08-10T09:00:00Z",
+  },
 ];
 
 export const DUMMY_REVIEWS: IReview[] = [
@@ -165,37 +186,37 @@ export const DUMMY_REVIEWS: IReview[] = [
     _id: "rev-1", orderId: "ORD-10049", productId: "prod-dates-ajwa", productName: "Premium Ajwa Dates",
     productImage: p("prod-dates-ajwa").images[0], customerName: "Jamal Bhuiyan", customerPhone: "01644556677",
     rating: 5, comment: "খুবই ভালো মানের খেজুর, একদম আসল আজওয়া খেজুরের মতো স্বাদ। দ্রুত ডেলিভারিও পেয়েছি।",
-    status: "published", adminReply: "ধন্যবাদ আপনার মূল্যবান মতামতের জন্য!", createdAt: "2026-09-01T08:00:00Z",
+    adminReply: "ধন্যবাদ আপনার মূল্যবান মতামতের জন্য!", createdAt: "2026-09-01T08:00:00Z",
   },
   {
     _id: "rev-2", orderId: "ORD-10047", productId: "prod-nuts-cashew", productName: "Cashew Nuts",
     productImage: p("prod-nuts-cashew").images[0], customerName: "Salma Begum", customerPhone: "01933445566",
     rating: 4, comment: "কাজু বাদাম তাজা ছিল, তবে দাম একটু বেশি মনে হয়েছে।",
-    status: "published", createdAt: "2026-08-25T10:00:00Z",
+    createdAt: "2026-08-25T10:00:00Z",
   },
   {
     _id: "rev-3", orderId: "ORD-10047", productId: "prod-nuts-almond", productName: "Almonds",
     productImage: p("prod-nuts-almond").images[0], customerName: "Salma Begum", customerPhone: "01933445566",
     rating: 3, comment: "প্যাকেজিং আরেকটু ভালো হতে পারতো, কিছু বাদাম ভাঙা ছিল।",
-    status: "pending", createdAt: "2026-08-25T10:05:00Z",
+    createdAt: "2026-08-25T10:05:00Z",
   },
   {
     _id: "rev-4", orderId: "ORD-10046", productId: "prod-dates-medjool", productName: "Medjool Dates",
     productImage: p("prod-dates-medjool").images[0], customerName: "Rahim Uddin", customerPhone: "01711223344",
     rating: 5, comment: "অসাধারণ! পরিবারের সবাই পছন্দ করেছে। আবার অর্ডার করবো ইনশাআল্লাহ।",
-    status: "published", adminReply: "আলহামদুলিল্লাহ! আপনার পাশে থাকার জন্য ধন্যবাদ।", createdAt: "2026-08-19T09:00:00Z",
+    adminReply: "আলহামদুলিল্লাহ! আপনার পাশে থাকার জন্য ধন্যবাদ।", createdAt: "2026-08-19T09:00:00Z",
   },
   {
     _id: "rev-5", orderId: "ORD-10046", productId: "prod-spice-cardamom", productName: "Black Cardamom",
     productImage: p("prod-spice-cardamom").images[0], customerName: "Rahim Uddin", customerPhone: "01711223344",
-    rating: 2, comment: "This review contained a promotional link and was removed by moderation.",
-    status: "rejected", createdAt: "2026-08-19T09:10:00Z",
+    rating: 2, comment: "প্যাকেটের সাইজ যতটা আশা করেছিলাম তার চেয়ে ছোট মনে হয়েছে, তবে গন্ধ ভালো ছিল।",
+    createdAt: "2026-08-19T09:10:00Z",
   },
   {
     _id: "rev-6", orderId: "ORD-10047", productId: "prod-nuts-cashew", productName: "Cashew Nuts",
     productImage: p("prod-nuts-cashew").images[0], customerName: "Salma Begum", customerPhone: "01933445566",
     rating: 5, comment: "Second time ordering — consistent quality every time!",
-    status: "pending", createdAt: "2026-09-04T07:30:00Z",
+    createdAt: "2026-09-04T07:30:00Z",
   },
 ];
 
@@ -204,4 +225,78 @@ export const DUMMY_COUPONS: ICoupon[] = [
   { _id: "cpn-2", code: "FREESHIP", type: "fixed", value: 100, minOrderAmount: 1000, usageLimit: 1000, usedCount: 340, startDate: "2026-08-01T00:00:00Z", expiryDate: "2026-10-31T00:00:00Z", status: "active", createdAt: "2026-08-01T00:00:00Z" },
   { _id: "cpn-3", code: "BULK15", type: "percentage", value: 15, minOrderAmount: 2000, maxDiscount: 500, usageLimit: 200, usedCount: 12, startDate: "2026-09-01T00:00:00Z", expiryDate: "2026-11-30T00:00:00Z", status: "inactive", createdAt: "2026-08-28T00:00:00Z" },
   { _id: "cpn-4", code: "EID50", type: "fixed", value: 50, minOrderAmount: 300, usageLimit: 2000, usedCount: 1876, startDate: "2026-06-01T00:00:00Z", expiryDate: "2026-06-20T00:00:00Z", status: "expired", createdAt: "2026-05-25T00:00:00Z" },
+];
+
+// Permission strings match the `permission` values used on admin.route.tsx
+// nav entries one-to-one, so every checkbox here genuinely gates a real page.
+const PERM: Record<string, IPermission> = {
+  bannerManage: { _id: "perm-banner-manage", name: "Manage banners", action: "banner.manage" },
+  categoryView: { _id: "perm-category-view", name: "View categories", action: "category.view" },
+  productView: { _id: "perm-product-view", name: "View products", action: "product.view" },
+  comboManage: { _id: "perm-combo-manage", name: "Manage combos", action: "combo.manage" },
+  orderView: { _id: "perm-order-view", name: "View orders", action: "order.view" },
+  inventoryView: { _id: "perm-inventory-view", name: "View inventory", action: "inventory.view" },
+  customerView: { _id: "perm-customer-view", name: "View customers", action: "customer.view" },
+  couponView: { _id: "perm-coupon-view", name: "View coupons", action: "coupon.view" },
+  newsletterManage: { _id: "perm-newsletter-manage", name: "Manage newsletter", action: "newsletter.manage" },
+  reportView: { _id: "perm-report-view", name: "View reports", action: "report.view" },
+  settingsView: { _id: "perm-settings-view", name: "Manage settings", action: "settings.view" },
+  staffManage: { _id: "perm-staff-manage", name: "Manage admins & roles", action: "staff.manage" },
+};
+
+export const DUMMY_PERMISSION_CATALOG: Record<string, IPermission[]> = {
+  banner: [PERM.bannerManage],
+  category: [PERM.categoryView],
+  product: [PERM.productView],
+  combo: [PERM.comboManage],
+  order: [PERM.orderView],
+  inventory: [PERM.inventoryView],
+  customer: [PERM.customerView],
+  coupon: [PERM.couponView],
+  newsletter: [PERM.newsletterManage],
+  report: [PERM.reportView],
+  settings: [PERM.settingsView],
+  staff: [PERM.staffManage],
+};
+
+export const DUMMY_ROLES: IRole[] = [
+  { _id: "role-super-admin", name: "Super Admin", slug: "super_admin", description: "Implicitly holds every permission.", permissions: [], isSystem: true, createdAt: "2026-08-01T00:00:00Z" },
+  {
+    _id: "role-store-manager", name: "Store Manager", slug: "store_manager", description: "Runs day-to-day store operations.",
+    permissions: [PERM.bannerManage, PERM.categoryView, PERM.productView, PERM.comboManage, PERM.orderView, PERM.inventoryView, PERM.customerView, PERM.couponView, PERM.reportView, PERM.settingsView],
+    isSystem: false, createdAt: "2026-08-02T00:00:00Z",
+  },
+  {
+    _id: "role-order-fulfillment", name: "Order Fulfillment", slug: "order_fulfillment", description: "Handles order processing and stock.",
+    permissions: [PERM.orderView, PERM.inventoryView], isSystem: false, createdAt: "2026-08-02T00:00:00Z",
+  },
+  {
+    _id: "role-marketing", name: "Marketing Staff", slug: "marketing_staff", description: "Manages banners, combos, coupons and the newsletter.",
+    permissions: [PERM.bannerManage, PERM.comboManage, PERM.couponView, PERM.newsletterManage], isSystem: false, createdAt: "2026-08-03T00:00:00Z",
+  },
+  {
+    _id: "role-support", name: "Customer Support", slug: "customer_support", description: "Looks up orders and customer accounts.",
+    permissions: [PERM.orderView, PERM.customerView], isSystem: false, createdAt: "2026-08-03T00:00:00Z",
+  },
+];
+
+const roleBySlug = (slug: string) => DUMMY_ROLES.find((r) => r.slug === slug)!;
+
+export const DUMMY_STAFF: IStaffListItem[] = [
+  { _id: "staff-1", name: "Rezaul Karim", email: "rezaul@ecommerce.com", phone: "01711000001", role: roleBySlug("super_admin"), status: "active", emailVerified: true, phoneVerified: true, isDeleted: false, lastLoginAt: "2026-09-06T09:00:00Z", createdAt: "2026-08-01T00:00:00Z" },
+  { _id: "staff-2", name: "Nasrin Akter", email: "nasrin@ecommerce.com", phone: "01711000002", role: roleBySlug("store_manager"), status: "active", emailVerified: true, phoneVerified: true, isDeleted: false, lastLoginAt: "2026-09-05T14:30:00Z", createdAt: "2026-08-02T00:00:00Z" },
+  { _id: "staff-3", name: "Kamal Hossain", email: "kamal@ecommerce.com", phone: "01711000003", role: roleBySlug("order_fulfillment"), status: "active", emailVerified: true, phoneVerified: false, isDeleted: false, lastLoginAt: "2026-09-06T08:15:00Z", createdAt: "2026-08-05T00:00:00Z" },
+  { _id: "staff-4", name: "Sadia Islam", email: "sadia@ecommerce.com", phone: "01711000004", role: roleBySlug("marketing_staff"), status: "active", emailVerified: true, phoneVerified: true, isDeleted: false, lastLoginAt: "2026-09-04T11:00:00Z", createdAt: "2026-08-10T00:00:00Z" },
+  { _id: "staff-5", name: "Tanvir Ahmed", email: "tanvir@ecommerce.com", phone: "01711000005", role: roleBySlug("customer_support"), status: "blocked", emailVerified: true, phoneVerified: true, isDeleted: false, lastLoginAt: "2026-08-20T16:45:00Z", createdAt: "2026-08-12T00:00:00Z" },
+];
+
+export const DUMMY_NEWSLETTER_SUBSCRIBERS: INewsletterSubscriber[] = [
+  { _id: "sub-1", email: "rahim@example.com", status: "subscribed", subscribedAt: "2026-08-02T10:00:00Z" },
+  { _id: "sub-2", email: "karim@example.com", status: "subscribed", subscribedAt: "2026-08-05T12:30:00Z" },
+  { _id: "sub-3", email: "salma@example.com", status: "subscribed", subscribedAt: "2026-08-10T09:15:00Z" },
+  { _id: "sub-4", email: "jamal@example.com", status: "unsubscribed", subscribedAt: "2026-07-20T08:00:00Z" },
+  { _id: "sub-5", email: "farzana@example.com", status: "subscribed", subscribedAt: "2026-08-18T15:40:00Z" },
+  { _id: "sub-6", email: "hasan.mahmud@example.com", status: "subscribed", subscribedAt: "2026-08-22T11:20:00Z" },
+  { _id: "sub-7", email: "nusrat.jahan@example.com", status: "subscribed", subscribedAt: "2026-08-28T13:05:00Z" },
+  { _id: "sub-8", email: "arif.chowdhury@example.com", status: "unsubscribed", subscribedAt: "2026-08-14T09:50:00Z" },
 ];

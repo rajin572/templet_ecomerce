@@ -1,8 +1,14 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import ReusableSheet from "@/Components/ui/CustomUi/ReuseableSheet";
 import Tag from "@/Components/ui/CustomUi/ReuseTag";
+import { Button } from "@/Components/ui/button";
+import { Mail } from "lucide-react";
+import ComposeEmailModal from "@/Components/Dashboard/Marketing/ComposeEmailModal";
 import { getOrderStatusTheme } from "@/utils/orderStatus";
+import { timeAgo } from "@/utils/dateFormet";
 import { useOrders } from "@/store/orderStore";
-import type { ICustomer } from "@/types";
+import type { ICustomer, INewsletterCampaignValues } from "@/types";
 
 interface CustomerProfileSheetProps {
   open: boolean;
@@ -12,12 +18,33 @@ interface CustomerProfileSheetProps {
 
 export default function CustomerProfileSheet({ open, onOpenChange, customer }: CustomerProfileSheetProps) {
   const allOrders = useOrders();
+  const [composeOpen, setComposeOpen] = useState(false);
   if (!customer) return null;
 
   const orders = allOrders.filter((o) => o.customerPhone === customer.phone);
 
+  const handleSend = (values: INewsletterCampaignValues) => {
+    toast.success(`"${values.subject}" sent to ${customer.email}`);
+  };
+
   return (
-    <ReusableSheet open={open} onOpenChange={onOpenChange} title={customer.name} description={`Customer since ${new Date(customer.joinedAt).toLocaleDateString()}`} width="sm:max-w-lg">
+    <ReusableSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={customer.name}
+      description={`Customer since ${new Date(customer.joinedAt).toLocaleDateString()}`}
+      width="sm:max-w-lg"
+      footer={
+        <Button
+          className="w-full"
+          disabled={!customer.email}
+          title={customer.email ? undefined : "No email on file for this customer"}
+          onClick={() => setComposeOpen(true)}
+        >
+          <Mail className="mr-2 size-4" /> Send Email to {customer.name}
+        </Button>
+      }
+    >
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Tag theme={customer.status === "Active" ? "success" : "error"}>{customer.status}</Tag>
@@ -60,7 +87,9 @@ export default function CustomerProfileSheet({ open, onOpenChange, customer }: C
                 <div key={o._id} className="flex items-center justify-between p-3 rounded-lg border border-border">
                   <div>
                     <p className="text-sm font-bold">{o.orderId}</p>
-                    <p className="text-xs text-secondbase-color">{new Date(o.placedAt).toLocaleDateString()} · ৳{o.total}</p>
+                    <p className="text-xs text-secondbase-color" title={new Date(o.placedAt).toLocaleString()}>
+                      {timeAgo(o.placedAt)} · ৳{o.total}
+                    </p>
                   </div>
                   <Tag theme={getOrderStatusTheme(o.status)}>{o.status}</Tag>
                 </div>
@@ -69,6 +98,17 @@ export default function CustomerProfileSheet({ open, onOpenChange, customer }: C
           )}
         </div>
       </div>
+
+      {customer.email && (
+        <ComposeEmailModal
+          open={composeOpen}
+          onOpenChange={setComposeOpen}
+          title={`Email ${customer.name}`}
+          description={`This will be sent directly to ${customer.email}.`}
+          submitLabel="Send"
+          onSend={handleSend}
+        />
+      )}
     </ReusableSheet>
   );
 }

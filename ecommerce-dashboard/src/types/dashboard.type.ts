@@ -17,7 +17,8 @@ export type OrderStatusV1 =
   | "Packed"
   | "Shipped"
   | "Delivered"
-  | "Cancelled";
+  | "Cancelled"
+  | "Returned";
 
 export interface IOrdersByStatusItem {
   category: OrderStatusV1;

@@ -10,6 +10,7 @@ const ORDER_STATUS_THEME: Record<OrderStatusV1, TagTheme> = {
   Shipped: "purple",
   Delivered: "success",
   Cancelled: "error",
+  Returned: "orange",
 };
 
 export const getOrderStatusTheme = (status: OrderStatusV1): TagTheme => ORDER_STATUS_THEME[status];

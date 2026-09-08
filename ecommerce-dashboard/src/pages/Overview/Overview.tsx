@@ -1,72 +1,93 @@
 import { useNavigate } from "react-router-dom";
 import PageWraper from "@/Components/ui/CustomUi/PageWraper";
-import RevenueAreaChart from "@/Components/Charts/RevenueAreaChart";
-import DonutSplitChart from "@/Components/Charts/DonutSplitChart";
-import TopProductsBarChart from "@/Components/Charts/TopProductsBarChart";
 import DashboardStatCards from "@/Components/Dashboard/Overview/DashboardStatCards";
 import ReusableTable, { Column } from "@/Components/ui/CustomUi/ReuseableTable";
 import Tag from "@/Components/ui/CustomUi/ReuseTag";
 import { Button } from "@/Components/ui/button";
+import { Package, Layers, Users, Megaphone, Mail, UserCog, ArrowUpRight } from "lucide-react";
 import { formatMoney } from "@/utils/money";
 import { formatDate } from "@/utils/dateFormet";
 import { getOrderStatusTheme, getPaymentStatusTheme } from "@/utils/orderStatus";
-import { ORDER_STATUS_COLORS, PAYMENT_METHOD_COLORS } from "@/utils/chartColors";
-import { IAttentionOrder, IDashboardOverviewData } from "@/types";
+import { DUMMY_PRODUCTS, DUMMY_CATEGORIES, DUMMY_CUSTOMERS, DUMMY_COUPONS, DUMMY_NEWSLETTER_SUBSCRIBERS, DUMMY_STAFF } from "@/data/dummyStore";
+import { IAttentionOrder, IDashboardStats } from "@/types";
 // import { useGetDashboardOverviewQuery } from "@/redux/features/dashboard/dashboardApi";
 
 // TODO: wire to GET /admin/dashboard/overview once the endpoint exists.
-const DUMMY_OVERVIEW: IDashboardOverviewData = {
-  stats: {
-    salesToday: 4500000,
-    pendingOrders: 8,
-    pendingPaymentVerification: 3,
-    lowStockItems: 5,
-  },
-  salesTrend: [
-    { date: "Aug 24", Revenue: 12500 },
-    { date: "Aug 25", Revenue: 15800 },
-    { date: "Aug 26", Revenue: 11200 },
-    { date: "Aug 27", Revenue: 19400 },
-    { date: "Aug 28", Revenue: 22100 },
-    { date: "Aug 29", Revenue: 17600 },
-    { date: "Aug 30", Revenue: 25300 },
-  ],
-  ordersByStatus: [
-    { category: "Pending", percentage: 10 },
-    { category: "Confirmed", percentage: 15 },
-    { category: "Processing", percentage: 20 },
-    { category: "Packed", percentage: 10 },
-    { category: "Shipped", percentage: 15 },
-    { category: "Delivered", percentage: 25 },
-    { category: "Cancelled", percentage: 5 },
-  ],
-  paymentMethodSplit: [
-    { category: "COD", percentage: 65 },
-    { category: "bKash", percentage: 25 },
-    { category: "Nagad", percentage: 10 },
-  ],
-  topSellingProducts: [
-    { _id: "1", name: "সুন্দরবনের খাঁটি মধু", unitsSold: 142 },
-    { _id: "2", name: "গাওয়া ঘি", unitsSold: 118 },
-    { _id: "3", name: "কালোজিরা তেল", unitsSold: 96 },
-    { _id: "4", name: "সরিষার তেল", unitsSold: 84 },
-    { _id: "5", name: "খেজুর (আজওয়া)", unitsSold: 61 },
-  ],
-  attentionOrders: [
-    { _id: "1", orderId: "AST-1029", customerName: "Rahim Uddin", customerPhone: "01712345678", total: 145000, status: "Pending", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-30T09:15:00Z" },
-    { _id: "2", orderId: "AST-1028", customerName: "Karim Sheikh", customerPhone: "01911223344", total: 320000, status: "Confirmed", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-30T08:40:00Z" },
-    { _id: "3", orderId: "AST-1027", customerName: "Nasrin Akter", customerPhone: "01611998877", total: 89000, status: "Pending", paymentMethod: "Nagad", paymentStatus: "Pending Verification", placedAt: "2026-08-29T19:05:00Z" },
-    { _id: "4", orderId: "AST-1026", customerName: "Jasim Molla", customerPhone: "01555112233", total: 210000, status: "Confirmed", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-29T15:22:00Z" },
-    { _id: "5", orderId: "AST-1025", customerName: "Fatema Begum", customerPhone: "01812009988", total: 62500, status: "Pending", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-29T11:50:00Z" },
-  ],
+// This page is the cross-module launchpad — what's happening everywhere.
+// For sales-specific charts and trends, see Sales > Sales Overview instead;
+// deliberately not duplicated here.
+const DUMMY_STATS: IDashboardStats = {
+  salesToday: 4500000,
+  pendingOrders: 8,
+  pendingPaymentVerification: 3,
+  lowStockItems: 5,
 };
+
+const DUMMY_ATTENTION_ORDERS: IAttentionOrder[] = [
+  { _id: "1", orderId: "AST-1029", customerName: "Rahim Uddin", customerPhone: "01712345678", total: 145000, status: "Pending", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-30T09:15:00Z" },
+  { _id: "2", orderId: "AST-1028", customerName: "Karim Sheikh", customerPhone: "01911223344", total: 320000, status: "Confirmed", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-30T08:40:00Z" },
+  { _id: "3", orderId: "AST-1027", customerName: "Nasrin Akter", customerPhone: "01611998877", total: 89000, status: "Pending", paymentMethod: "Nagad", paymentStatus: "Pending Verification", placedAt: "2026-08-29T19:05:00Z" },
+  { _id: "4", orderId: "AST-1026", customerName: "Jasim Molla", customerPhone: "01555112233", total: 210000, status: "Confirmed", paymentMethod: "COD", paymentStatus: "Pending", placedAt: "2026-08-29T15:22:00Z" },
+  { _id: "5", orderId: "AST-1025", customerName: "Fatema Begum", customerPhone: "01812009988", total: 62500, status: "Pending", paymentMethod: "bKash", paymentStatus: "Pending Verification", placedAt: "2026-08-29T11:50:00Z" },
+];
 
 const OverviewPage = () => {
   const navigate = useNavigate();
 
   // const { data } = useGetDashboardOverviewQuery();
-  // const overview = data?.data;
-  const overview = DUMMY_OVERVIEW;
+  const stats = DUMMY_STATS;
+  const attentionOrders = DUMMY_ATTENTION_ORDERS;
+
+  const snapshot = [
+    {
+      label: "Products",
+      value: DUMMY_PRODUCTS.filter((p) => p.status === "published").length,
+      sub: `of ${DUMMY_PRODUCTS.length} total`,
+      icon: Package,
+      color: "text-secondary-color bg-secondary-color/10",
+      url: "/admin/products",
+    },
+    {
+      label: "Categories",
+      value: DUMMY_CATEGORIES.filter((c) => c.status === "active").length,
+      sub: "active",
+      icon: Layers,
+      color: "text-blue-600 bg-blue-50",
+      url: "/admin/categories",
+    },
+    {
+      label: "Customers",
+      value: DUMMY_CUSTOMERS.length,
+      sub: "total accounts",
+      icon: Users,
+      color: "text-emerald-600 bg-emerald-50",
+      url: "/admin/customers",
+    },
+    {
+      label: "Active Coupons",
+      value: DUMMY_COUPONS.filter((c) => c.status === "active").length,
+      sub: "running now",
+      icon: Megaphone,
+      color: "text-purple-600 bg-purple-50",
+      url: "/admin/coupons",
+    },
+    {
+      label: "Newsletter Subscribers",
+      value: DUMMY_NEWSLETTER_SUBSCRIBERS.filter((s) => s.status === "subscribed").length,
+      sub: "subscribed",
+      icon: Mail,
+      color: "text-pink-600 bg-pink-50",
+      url: "/admin/newsletter",
+    },
+    {
+      label: "Admins & Staff",
+      value: DUMMY_STAFF.length,
+      sub: "accounts",
+      icon: UserCog,
+      color: "text-amber-600 bg-amber-50",
+      url: "/admin/admins",
+    },
+  ];
 
   const columns: Column<IAttentionOrder>[] = [
     { header: "Order ID", accessorKey: "orderId", render: (val) => <span className="font-bold">#{val}</span> },
@@ -114,34 +135,29 @@ const OverviewPage = () => {
   ];
 
   return (
-    <PageWraper title="Dashboard Overview" description="Monitor your store's performance and what needs attention today">
-      <DashboardStatCards stats={overview.stats} />
+    <PageWraper title="Dashboard Overview" description="What's happening across the whole store today — for sales trends and charts, see Sales Overview">
+      <DashboardStatCards stats={stats} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Sales Trend</h2>
-          <p className="text-sm text-secondbase-color mb-2">Last 7 days — collected COD + verified manual payments</p>
-          <RevenueAreaChart data={overview.salesTrend} />
-        </div>
-
-        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Orders by Status</h2>
-          <p className="text-sm text-secondbase-color mb-2">Current order pipeline</p>
-          <DonutSplitChart data={overview.ordersByStatus} colors={ORDER_STATUS_COLORS} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Payment Method Split</h2>
-          <p className="text-sm text-secondbase-color mb-2">Cash on Delivery vs. manual wallet transfer</p>
-          <DonutSplitChart data={overview.paymentMethodSplit} colors={PAYMENT_METHOD_COLORS} />
-        </div>
-
-        <div className="bg-white rounded-xl border border-border shadow-sm p-5">
-          <h2 className="text-base font-semibold text-base-color">Top Selling Products</h2>
-          <p className="text-sm text-secondbase-color mb-2">Units sold, delivered orders only</p>
-          <TopProductsBarChart data={overview.topSellingProducts} />
+      <div>
+        <h2 className="text-base font-semibold text-base-color mb-3">Store at a Glance</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {snapshot.map(({ label, value, sub, icon: Icon, color, url }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => navigate(url)}
+              className="group bg-white rounded-xl border border-border shadow-sm p-4 text-left hover:border-secondary-color/40 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className={`size-9 rounded-lg flex items-center justify-center ${color}`}>
+                  <Icon className="size-4.5" />
+                </div>
+                <ArrowUpRight className="size-3.5 text-secondbase-color opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <p className="text-2xl font-bold text-base-color">{value}</p>
+              <p className="text-xs text-secondbase-color mt-0.5">{label} · {sub}</p>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -155,7 +171,7 @@ const OverviewPage = () => {
             View All Orders
           </Button>
         </div>
-        <ReusableTable data={overview.attentionOrders} columns={columns} />
+        <ReusableTable data={attentionOrders} columns={columns} />
       </div>
     </PageWraper>
   );

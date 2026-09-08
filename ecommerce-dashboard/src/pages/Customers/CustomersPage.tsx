@@ -42,7 +42,7 @@ const CustomersPage = () => {
     { header: "Status", accessorKey: "status", render: (val) => <Tag theme={val === "Active" ? "success" : "error"}>{val}</Tag> },
     {
       header: "Action", accessorKey: "_id", render: (_, row) => (
-        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10" onClick={() => setViewing(row)}>
+        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 hover:text-primary" onClick={() => setViewing(row)}>
           <Eye className="mr-2 size-4" /> Profile
         </Button>
       ),

@@ -1,4 +1,10 @@
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+
+/** "3 days ago", "a month ago", etc. */
+export const timeAgo = (date: string | Date | undefined): string => dayjs(date).fromNow();
 
 export const formatDateTime = (date: string | Date): string => {
   // date is less than 1min ago, return "just now"

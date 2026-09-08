@@ -14,7 +14,7 @@ import ReusablePagination from './ReusablePagination';
 import { cn } from '@/lib/utils';
 
 export interface Column<T> {
-    header: string;
+    header: React.ReactNode;
     accessorKey: keyof T;
     headerClassName?: string;
     cellClassName?: string;
